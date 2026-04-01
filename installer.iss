@@ -2,7 +2,7 @@
 ; https://jrsoftware.org/isinfo.php
 
 #define MyAppName "Go-to-Bed"
-#define MyAppVersion "2.1.0"
+#define MyAppVersion "2.1.1"
 #define MyAppPublisher "Go-to-Bed Contributors"
 #define MyAppURL "https://github.com/zGLados/go-to-bed"
 #define MyAppExeName "GoToBed.ps1"
@@ -48,15 +48,11 @@ Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Name: "{group}\{#MyAppName}"; Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -File ""{app}\GoToBed.ps1"" -Hidden"; WorkingDir: "{app}"; IconFilename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"
 Name: "{group}\Configuration"; Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName} Settings"; Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"; IconFilename: "{sys}\imageres.dll"; IconIndex: 1; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName} Settings"; Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"; IconFilename: "{sys}\imageres.dll"; IconIndex: 1; Tasks: desktopicon
 
 [Registry]
 ; Autostart registry entry - use wscript with VBS for silent start
 Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: "wscript.exe ""{app}\Start-GoToBed.vbs"""; Flags: uninsdeletevalue; Tasks: autostart
-
-[Run]
-; Start application after installation using VBS for silent execution
-Filename: "wscript.exe"; Parameters: """{app}\Start-GoToBed.vbs"""; Description: "Start {#MyAppName} now"; Flags: postinstall skipifsilent nowait
 
 [Code]
 var

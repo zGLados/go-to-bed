@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.1] - 2026-04-01
+
+### Fixed
+- 🐛 Removed "Start now" option after installation (service starts on next boot/autostart)
+- 🪟 PowerShell window now properly hidden when opening settings GUI
+- 🎨 Desktop shortcut configured to run silently
+
+### Changed
+- Settings GUI launches without visible console window
+- Cleaner post-installation experience
+
 ## [2.1.0] - 2026-04-01
 
 ### ✨ New Features
