@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.2] - 2026-04-01
+
+### Fixed
+- 🪟 Settings window now larger (620px height) for better visibility
+- 🎨 Fixed emoji encoding issues in GUI (removed problematic UTF-8 characters)
+- 📦 Added icon.png to installer package
+- ✅ All 7 weekdays now properly displayed in settings
+
+### Changed
+- Cleaner text labels without encoding issues
+- Better window sizing for comfortable viewing
+
 ## [2.1.1] - 2026-04-01
 
 ### Fixed

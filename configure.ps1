@@ -35,7 +35,7 @@ $defaultWeekdays = if ($currentConfig) { $currentConfig.weekdays } else { @("Mon
 <Window xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Go-to-Bed Settings" 
-        Width="500" Height="550" 
+        Width="550" Height="700" 
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Background="#F5F5F5">
@@ -75,14 +75,14 @@ $defaultWeekdays = if ($currentConfig) { $currentConfig.weekdays } else { @("Mon
         <!-- Header -->
         <Grid Grid.Row="0" Background="#2C3E50" Margin="-20,-20,-20,0">
             <StackPanel Margin="20,15">
-                <TextBlock Text="🌙 Go-to-Bed Settings" FontSize="24" FontWeight="Bold" Foreground="White"/>
+                <TextBlock Text="Go-to-Bed Settings" FontSize="24" FontWeight="Bold" Foreground="White"/>
                 <TextBlock Text="Configure your bedtime reminder" FontSize="12" Foreground="#BDC3C7" Margin="0,5,0,0"/>
             </StackPanel>
         </Grid>
         
         <!-- Bedtime Section -->
         <StackPanel Grid.Row="1" Margin="0,25,0,0">
-            <TextBlock Text="⏰ Bedtime" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,10"/>
+            <TextBlock Text="Bedtime" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,10"/>
             <Border Background="White" CornerRadius="5" Padding="15" BorderBrush="#BDC3C7" BorderThickness="1">
                 <StackPanel>
                     <TextBlock Text="What time do you want to go to bed?" Foreground="#7F8C8D" Margin="0,0,0,10"/>
@@ -99,7 +99,7 @@ $defaultWeekdays = if ($currentConfig) { $currentConfig.weekdays } else { @("Mon
         
         <!-- Weekdays Section -->
         <StackPanel Grid.Row="2" Margin="0,20,0,0">
-            <TextBlock Text="📅 Active Days" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,10"/>
+            <TextBlock Text="Active Days" FontSize="16" FontWeight="SemiBold" Foreground="#2C3E50" Margin="0,0,0,10"/>
             <Border Background="White" CornerRadius="5" Padding="15" BorderBrush="#BDC3C7" BorderThickness="1">
                 <StackPanel>
                     <TextBlock Text="On which days should the reminder appear?" Foreground="#7F8C8D" Margin="0,0,0,15"/>
@@ -146,7 +146,7 @@ $defaultWeekdays = if ($currentConfig) { $currentConfig.weekdays } else { @("Mon
         
         <!-- Action Buttons -->
         <StackPanel Grid.Row="5" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,20,0,0">
-            <Button x:Name="SaveButton" Content="💾 Save Settings" Background="#27AE60" Foreground="White" Padding="25,12" Margin="0,0,10,0"/>
+            <Button x:Name="SaveButton" Content="Save Settings" Background="#27AE60" Foreground="White" Padding="25,12" Margin="0,0,10,0"/>
             <Button x:Name="CancelButton" Content="Cancel" Background="#95A5A6" Foreground="White" Padding="25,12"/>
         </StackPanel>
     </Grid>
