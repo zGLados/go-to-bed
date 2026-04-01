@@ -2,11 +2,10 @@
 ; https://jrsoftware.org/isinfo.php
 
 #define MyAppName "Go-to-Bed"
-#define MyAppVersion "2.0.2"
+#define MyAppVersion "2.0.3"
 #define MyAppPublisher "Go-to-Bed Contributors"
 #define MyAppURL "https://github.com/zGLados/go-to-bed"
 #define MyAppExeName "GoToBed.ps1"
-#define MyAppLauncher "Start-GoToBed.vbs"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -46,18 +45,18 @@ Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{sys}\wscript.exe"; Parameters: """{app}\{#MyAppLauncher}"""; WorkingDir: "{app}"
+Name: "{group}\{#MyAppName}"; Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -File ""{app}\GoToBed.ps1"" -Hidden"; WorkingDir: "{app}"; IconFilename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"
 Name: "{group}\Configuration"; Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{sys}\wscript.exe"; Parameters: """{app}\{#MyAppLauncher}"""; WorkingDir: "{app}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -File ""{app}\GoToBed.ps1"" -Hidden"; WorkingDir: "{app}"; IconFilename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Tasks: desktopicon
 
 [Registry]
-; Autostart registry entry
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: "wscript.exe """"""{app}\{#MyAppLauncher}"""""""; Flags: uninsdeletevalue; Tasks: autostart
+; Autostart registry entry - use wscript with VBS for silent start
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: "wscript.exe ""{app}\Start-GoToBed.vbs"""; Flags: uninsdeletevalue; Tasks: autostart
 
 [Run]
-; Start application after installation
-Filename: "{sys}\wscript.exe"; Parameters: """{app}\{#MyAppLauncher}"""; Description: "Start {#MyAppName} now"; Flags: postinstall skipifsilent nowait
+; Start application after installation using VBS for silent execution
+Filename: "wscript.exe"; Parameters: """{app}\Start-GoToBed.vbs"""; Description: "Start {#MyAppName} now"; Flags: postinstall skipifsilent nowait
 
 [Code]
 var

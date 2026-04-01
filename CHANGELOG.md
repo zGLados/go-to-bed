@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3] - 2026-04-01
+
+### Fixed
+- 🐛 Fixed VBS script module error
+- Shortcuts now use PowerShell directly with hidden window
+- Autostart uses VBS for completely silent execution
+- Added multiple launcher methods (VBS, BAT, PS1) for maximum compatibility
+
 ## [2.0.2] - 2026-04-01
 
 ### Fixed
