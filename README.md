@@ -2,6 +2,8 @@
 
 Ein einfaches Tool, das dich zu einer bestimmten Uhrzeit daran erinnert, ins Bett zu gehen!
 
+**Windows-Installer verfügbar!** - Ein-Klick Installation mit automatischem Autostart 🚀
+
 ## Features
 
 - 🕐 Konfigurierbare Schlafenszeit
@@ -9,97 +11,40 @@ Ein einfaches Tool, das dich zu einer bestimmten Uhrzeit daran erinnert, ins Bet
 - �🖥️ Großer Vollbild-Banner zur Erinnerung
 - 👤 Zeigt deinen Benutzernamen in der Nachricht
 - 🔄 Läuft im Hintergrund als Service
-- 🚀 Einfache Installation mit automatischem Setup
-- 📦 Vorkompilierte Binaries für Linux, macOS und Windows
+- 🚀 **Windows: Ein-Klick Installer** - Automatischer Autostart und Konfiguration
+- 📦 Einfache Installation
 
 ## Installation
 
-**Hinweis:** Die Downloads enthalten kompilierte Binaries, aber **noch keine automatischen Installer**. Die Installation erfolgt über die mitgelieferten Skripte.
+### Windows (Empfohlen) 🎯
 
-### Schnellinstallation (empfohlen)
+**Ein-Klick Installation:**
 
-1. Lade die neueste Version für dein System von den [Releases](../../releases/latest) herunter:
-   - **Linux (64-bit)**: `go-to-bed-linux-amd64.tar.gz`
-   - **Linux (ARM64)**: `go-to-bed-linux-arm64.tar.gz`
-   - **macOS (Intel)**: `go-to-bed-darwin-amd64.tar.gz`
-   - **macOS (Apple Silicon)**: `go-to-bed-darwin-arm64.tar.gz`
-   - **Windows**: `go-to-bed-windows-amd64.zip`
+1. Lade `GoToBed-Setup.exe` von den [Releases](../../releases/latest) herunter
+2. Doppelklick auf die heruntergeladene Datei
+3. Folge dem Installationsassistenten:
+   - ✅ **"Automatisch beim Windows-Start ausführen"** wird empfohlen
+   - Der Installer konfiguriert automatisch den Autostart
+   - Nach der Installation wirst du nach deiner Schlafenszeit gefragt
+4. **Fertig!** Das Programm läuft jetzt im Hintergrund
 
-2. Entpacke das Archiv:
-   ```bash
-   # Linux/macOS
-   tar xzf go-to-bed-*.tar.gz
-   cd go-to-bed-*
-   
-   # Windows
-   # Entpacke die ZIP-Datei mit dem Explorer
-   ```
+**Features des Installers:**
+- ✨ Automatische Installation in `Programme\Go-to-Bed`
+- 🚀 Optionaler Autostart beim Windows-Start
+- ⚙️ Geführte Konfiguration während der Installation
+- 🗑️ Saubere Deinstallation über Windows-Systemsteuerung
 
-3. Führe das Installationsskript aus:
-   ```bash
-   # Linux/macOS
-   ./install.sh
-   
-   # Windows
-   # Siehe Windows-Anleitung unten
-   ```
+**Konfiguration ändern:**
+- Start-Menü → "Go-to-Bed" → "Konfiguration"
+- Oder führe aus: `%ProgramFiles%\Go-to-Bed\configure.ps1`
 
-### Linux (systemd)
+---
 
-Das Installationsskript richtet automatisch einen systemd-Service ein:
+### Linux & macOS (Aktuell nicht verfügbar)
 
-```bash
-./install.sh
-```
+Die Entwicklung konzentriert sich momentan auf Windows. Linux und macOS Versionen sind geplant.
 
-Der Service läuft dann automatisch im Hintergrund und startet bei jedem Login.
-
-**Service-Befehle:**
-```bash
-# Status prüfen
-systemctl --user status go-to-bed
-
-# Service stoppen
-systemctl --user stop go-to-bed
-
-# Service neustarten
-systemctl --user restart go-to-bed
-
-# Logs anzeigen
-journalctl --user -u go-to-bed -f
-```
-
-### macOS
-
-Für macOS kann das Tool als LaunchAgent eingerichtet werden. Eine detaillierte Anleitung folgt in zukünftigen Updates.
-
-Aktuell kann das Tool manuell gestartet werden:
-```bash
-./go-to-bed-darwin-*
-```
-
-### Windows
-
-Für Windows:
-
-1. Entpacke die ZIP-Datei
-2. Führe die Konfiguration aus:
-   ```powershell
-   .\configure.ps1
-   ```
-3. Starte das Programm:
-   ```powershell
-   .\go-to-bed-windows-amd64.exe
-   ```
-
-**Autostart einrichten:**
-
-Um das Programm automatisch beim Login zu starten:
-1. Drücke `Win + R` und gib `shell:startup` ein
-2. Erstelle eine Verknüpfung zur `go-to-bed-windows-amd64.exe` in diesem Ordner
-3. Beim nächsten Login startet das Programm automatisch
-
-Eine detaillierte Anleitung für Windows-Services folgt in zukünftigen Updates.
+**Hinweis:** Frühere Versionen unterstützten Linux. Wenn du Linux benötigst, schau dir ältere Releases an oder baue selbst von Source.
 
 ## Konfiguration
 
@@ -187,55 +132,61 @@ Du kannst den Banner mit dem Button "OK, ich gehe jetzt ins Bett" schließen, od
 ### Voraussetzungen
 
 - Go 1.21 oder höher
-- Für Linux: `libgl1-mesa-dev` und `xorg-dev`
+- **Für Windows:** Wird automatisch durch Go build tools unterstützt
 
 ### Build von Quellcode
 
 1. Repository klonen:
    ```bash
-   git clone https://github.com/[dein-username]/go-to-bed.git
+   git clone https://github.com/zGLados/go-to-bed.git
    cd go-to-bed
    ```
 
 2. Dependencies installieren:
    ```bash
-   make deps
+   go mod download
    ```
 
-3. Bauen:
+3. **Windows** bauen:
    ```bash
-   make build
+   # Standard build (mit Konsolenfenster)
+   go build -o go-to-bed.exe .
+   
+   # Background build (ohne Konsolenfenster)
+   go build -ldflags "-H windowsgui" -o go-to-bed.exe .
    ```
 
-4. Für alle Plattformen bauen:
+4. **Installer** bauen (Windows mit Inno Setup):
    ```bash
-   make build-all
+   # Inno Setup installieren: https://jrsoftware.org/isinfo.php
+   # Dann:
+   "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
    ```
 
 ### Lokal testen
 
 ```bash
-make run
+go run .
 ```
 
 ## GitHub Actions
 
-Dieses Projekt nutzt GitHub Actions für automatische Builds:
+Dieses Projekt nutzt GitHub Actions für automatische Installer-Builds:
 
-- Bei jedem Tag-Push (z.B. `v1.0.0`) werden automatisch Binaries für alle Plattformen erstellt
-- Die Binaries werden als Release-Assets veröffentlicht
+- Bei jedem Tag-Push (z.B. `v1.2.0`) wird automatisch ein Windows-Installer erstellt
+- Der Installer wird als Release-Asset veröffentlicht
 - Jeder kann die neueste Version einfach herunterladen
 
 ### Release erstellen
 
 1. Tag erstellen und pushen:
    ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
+   git tag v1.2.0
+   git push origin v1.2.0
    ```
 
-2. GitHub Actions baut automatisch alle Binaries
-3. Ein neues Release wird mit allen Plattform-Paketen erstellt
+2. GitHub Actions baut automatisch den Installer
+3. Ein neues Release wird mit `GoToBed-Setup.exe` erstellt
 
 ## Lizenz
 
@@ -247,21 +198,20 @@ Pull Requests sind willkommen! Für größere Änderungen öffne bitte zuerst ei
 
 ## Bekannte Probleme
 
-- macOS: Vollbild-Banner funktioniert möglicherweise nicht perfekt auf allen Versionen
-- Windows: Benachrichtigungen erfordern möglicherweise zusätzliche Konfiguration
+- **Erste Ausführung:** Windows Defender SmartScreen könnte eine Warnung anzeigen (klicke auf "Weitere Informationen" → "Trotzdem ausführen")
+- **Konfiguration:** PowerShell Execution Policy muss Skripte erlauben (wird automatisch mit `-ExecutionPolicy Bypass` umgangen)
 
 ## Roadmap
 
-- [ ] **Windows Installer (.msi oder .exe)** - Ein-Klick Installation
-- [ ] **macOS App Bundle (.app)** - Installierbare App mit Installationsskript
+- [x] **Windows Installer (.exe)** - Ein-Klick Installation ✅
 - [ ] **Linux .deb/.rpm Pakete** - System-Package-Manager Integration
-- [ ] Bessere macOS Integration (LaunchAgent)
-- [ ] Windows Service Support
+- [ ] **macOS App Bundle (.app)** - Installierbare App mit Installationsskript
+- [ ] System-Tray-Icon für Windows
 - [ ] Mehrere Erinnerungszeiten pro Tag
 - [ ] Snooze-Funktion
 - [ ] Anpassbare Nachrichten
 - [ ] GUI für Konfiguration
-- [x] Wochentagauswahl
+- [x] Wochentagauswahl ✅
 
 ## Support
 

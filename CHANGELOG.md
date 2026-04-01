@@ -2,7 +2,27 @@
 
 Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
 
-## [Unreleased]
+## [1.2.0] - Windows Installer Release
+
+### 🎯 Hauptfeature: Windows Installer
+- ✨ **Ein-Klick Installer (.exe)** - Einfache Installation mit Inno Setup
+- 🚀 **Automatischer Autostart** - Optional beim Windows-Start ausführen
+- ⚙️ **Geführte Konfiguration** - Wizard während der Installation
+- 🗑️ **Saubere Deinstallation** - Über Windows Systemsteuerung
+- 📋 **Start-Menü Integration** - Verknüpfungen für Programm und Konfiguration
+
+### Geändert
+- 🎯 **Fokus auf Windows** - Linux/macOS Support temporär pausiert
+- 🔧 Build-Flags optimiert für Windows (`-ldflags "-H windowsgui"`)
+- 📖 README komplett überarbeitet für Windows-Nutzer
+
+### Technisch
+- Inno Setup Skript für Installer-Generierung
+- GitHub Actions baut automatisch Installer bei jedem Release
+- Registry-Integration für Autostart
+- Mutex-Check für Single-Instance (im Installer)
+
+## [1.1.0] - Weekday Selection Feature
 
 ### Hinzugefügt
 - 📅 **Wochentagauswahl**: Du kannst jetzt auswählen, an welchen Wochentagen die Erinnerung erscheinen soll

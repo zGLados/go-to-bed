@@ -1,70 +1,81 @@
 # 🚀 Schnellstart
 
-## Für Nutzer (Empfohlen)
+## Für Windows-Nutzer (Empfohlen)
 
-1. **Download**: Gehe zu [Releases](../../releases/latest) und lade die Datei für dein System herunter
+1. **Download**: Gehe zu [Releases](../../releases/latest) und lade `GoToBed-Setup.exe` herunter
 
-2. **Entpacken**:
-   ```bash
-   tar xzf go-to-bed-linux-amd64.tar.gz
-   cd go-to-bed-linux-amd64
-   ```
+2. **Installieren**: Doppelklick auf die Datei, Installer-Assistent folgen
 
-3. **Installieren**:
-   ```bash
-   ./install.sh
-   ```
+3. **Fertig!** Der Installer:
+   - Installiert das Programm
+   - Richtet optional Autostart ein
+   - Startet die Konfiguration
+   - Du wirst nach deiner Schlafenszeit gefragt 🎉
 
-4. **Fertig!** Der Service läuft jetzt im Hintergrund 🎉
+## Konfiguration ändern
+
+**Windows:**
+- Start-Menü → "Go-to-Bed" → "Konfiguration"
+
+Oder über PowerShell:
+```powershell
+cd "%ProgramFiles%\Go-to-Bed"
+.\configure.ps1
+```
 
 ## Für Entwickler
 
 ### Voraussetzungen
 ```bash
-# Ubuntu/Debian
-sudo apt-get install golang-go libgl1-mesa-dev xorg-dev
+# Windows: Go installieren
+# https://golang.org/dl/
 
-# macOS
-brew install go
+# Inno Setup für Installer (optional)
+# https://jrsoftware.org/isinfo.php
 ```
 
 ### Projekt aufsetzen
 ```bash
-git clone https://github.com/[dein-username]/go-to-bed.git
+git clone https://github.com/zGLados/go-to-bed.git
 cd go-to-bed
-make deps
-make build
+go mod download
+go build -o go-to-bed.exe .
 ```
 
 ### Testen
 ```bash
-# Direkt ausführen (testet nur einmal)
-make run
+# Direkt ausführen
+go run .
 
-# Oder mit custom Bedtime für sofortigen Test (in 1 Minute)
-CURRENT_TIME=$(date -d '+1 minute' +%H:%M)
-cat > ~/.go-to-bed.conf << EOF
-{
-  "bedtime": "$CURRENT_TIME",
-  "weekdays": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
-}
-EOF
-make run
+# Mit benutzerdefinierter Zeit (in 1 Minute)
+# Bearbeite erst die Config:
+# %USERPROFILE%\.go-to-bed.conf
+```
+
+### Installer bauen
+```bash
+# Mit Inno Setup
+"C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 ```
 
 ### Release erstellen
 ```bash
 # Tag erstellen
-git tag v1.0.0
-git push origin v1.0.0
+git tag v1.2.0
+git push origin v1.2.0
 
-# GitHub Actions erstellt automatisch alle Binaries!
+# GitHub Actions erstellt automatisch den Installer!
 ```
 
 ## Konfiguration ändern
 
-```bash
-./configure.sh
+**Windows:**
+- Start-Menü → "Go-to-Bed" → "Konfiguration"
+
+Oder über PowerShell:
+```powershell
+cd "%ProgramFiles%\Go-to-Bed"
+.\configure.ps1
 ```
 
 Das Skript fragt dich:
@@ -72,34 +83,25 @@ Das Skript fragt dich:
 2. **Wochentage** (Jeden Tag, Werktage, Wochenende, oder Benutzerdefiniert)
 
 Oder direkt editieren:
-```bash
-# JSON-Format verwenden
-cat > ~/.go-to-bed.conf << EOF
+```powershell
+# JSON-Format verwenden in: %USERPROFILE%\.go-to-bed.conf
 {
   "bedtime": "23:00",
   "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri"]
 }
-EOF
-
-systemctl --user restart go-to-bed
 ```
 
 ## Troubleshooting
 
-### Service läuft nicht
-```bash
-systemctl --user status go-to-bed
-journalctl --user -u go-to-bed -n 50
-```
+### Programm läuft nicht
+Task-Manager öffnen (Strg+Shift+Esc) und prüfen, ob `go-to-bed.exe` läuft.
+
+Wenn nicht, starte es manuell:
+- Start-Menü → "Go-to-Bed"
+- Oder: `%ProgramFiles%\Go-to-Bed\go-to-bed.exe`
 
 ### Vollbild funktioniert nicht
-Stelle sicher, dass du in einer grafischen Umgebung arbeitest (X11/Wayland).
-
-### Uhrzeit ändern
-```bash
-./configure.sh
-systemctl --user restart go-to-bed
-```
+Stelle sicher, dass du eine grafische Windows-Umgebung verwendest (kein Server Core).
 
 ## Nächste Schritte
 
