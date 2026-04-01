@@ -7,28 +7,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    name: Build Binaries
+  build-linux:
+    name: Build Linux
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        include:
-          - goos: linux
-            goarch: amd64
-            output: go-to-bed-linux-amd64
-          - goos: linux
-            goarch: arm64
-            output: go-to-bed-linux-arm64
-          - goos: darwin
-            goarch: amd64
-            output: go-to-bed-darwin-amd64
-          - goos: darwin
-            goarch: arm64
-            output: go-to-bed-darwin-arm64
-          - goos: windows
-            goarch: amd64
-            output: go-to-bed-windows-amd64.exe
-
+        goarch: [amd64, arm64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -38,51 +22,129 @@ jobs:
         with:
           go-version: '1.21'
 
-      - name: Install dependencies (Linux)
-        if: matrix.goos == 'linux'
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgl1-mesa-dev xorg-dev
+          sudo apt-get install -y libgl1-mesa-dev xorg-dev gcc-aarch64-linux-gnu
 
-      - name: Download dependencies
+      - name: Download Go dependencies
         run: |
           go mod tidy
           go mod download
 
       - name: Build binary
         env:
-          GOOS: ${{ matrix.goos }}
+          GOOS: linux
           GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
+          CC: ${{ matrix.goarch == 'arm64' && 'aarch64-linux-gnu-gcc' || 'gcc' }}
         run: |
-          go build -o ${{ matrix.output }} .
+          go build -o go-to-bed-linux-${{ matrix.goarch }} .
 
       - name: Create release package
         run: |
           mkdir -p release
-          cp ${{ matrix.output }} release/
+          cp go-to-bed-linux-${{ matrix.goarch }} release/
           cp configure.sh release/
-          cp configure.ps1 release/
           cp install.sh release/
           cp config.example release/
           chmod +x release/*.sh
           cd release
-          if [ "${{ matrix.goos }}" = "windows" ]; then
-            zip ../go-to-bed-${{ matrix.goos }}-${{ matrix.goarch }}.zip *
-          else
-            tar czf ../go-to-bed-${{ matrix.goos }}-${{ matrix.goarch }}.tar.gz *
-          fi
+          tar czf ../go-to-bed-linux-${{ matrix.goarch }}.tar.gz *
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: go-to-bed-${{ matrix.goos }}-${{ matrix.goarch }}
-          path: |
-            go-to-bed-*.tar.gz
-            go-to-bed-*.zip
+          name: go-to-bed-linux-${{ matrix.goarch }}
+          path: go-to-bed-linux-${{ matrix.goarch }}.tar.gz
+
+  build-macos:
+    name: Build macOS
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        goarch: [amd64, arm64]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Download Go dependencies
+        run: |
+          go mod tidy
+          go mod download
+
+      - name: Build binary
+        env:
+          GOOS: darwin
+          GOARCH: ${{ matrix.goarch }}
+          CGO_ENABLED: 1
+        run: |
+          go build -o go-to-bed-darwin-${{ matrix.goarch }} .
+
+      - name: Create release package
+        run: |
+          mkdir -p release
+          cp go-to-bed-darwin-${{ matrix.goarch }} release/
+          cp configure.sh release/
+          cp config.example release/
+          chmod +x release/*.sh release/go-to-bed-darwin-${{ matrix.goarch }}
+          cd release
+          tar czf ../go-to-bed-darwin-${{ matrix.goarch }}.tar.gz *
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-to-bed-darwin-${{ matrix.goarch }}
+          path: go-to-bed-darwin-${{ matrix.goarch }}.tar.gz
+
+  build-windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.21'
+
+      - name: Download Go dependencies
+        run: |
+          go mod tidy
+          go mod download
+
+      - name: Build binary
+        env:
+          GOOS: windows
+          GOARCH: amd64
+          CGO_ENABLED: 1
+        run: |
+          go build -o go-to-bed-windows-amd64.exe .
+
+      - name: Create release package
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path release
+          Copy-Item go-to-bed-windows-amd64.exe release/
+          Copy-Item configure.ps1 release/
+          Copy-Item config.example release/
+          Compress-Archive -Path release/* -DestinationPath go-to-bed-windows-amd64.zip
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: go-to-bed-windows-amd64
+          path: go-to-bed-windows-amd64.zip
 
   release:
     name: Create Release
-    needs: build
+    needs: [build-linux, build-macos, build-windows]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
     
