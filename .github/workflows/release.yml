@@ -18,6 +18,16 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.21'
+          cache: true
+
+      - name: Setup MSYS2 (for CGO)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-pkg-config
 
       - name: Download Go dependencies
         run: |
@@ -25,8 +35,15 @@ jobs:
           go mod download
 
       - name: Build binary
+        timeout-minutes: 5
         run: |
-          go build -ldflags "-H windowsgui" -o go-to-bed.exe .
+          echo "Starting build with CGO..."
+          $env:CGO_ENABLED=1
+          go build -v -ldflags "-H windowsgui" -o go-to-bed.exe .
+          echo "Build completed successfully!"
+          if (Test-Path go-to-bed.exe) {
+            echo "Binary size: $((Get-Item go-to-bed.exe).length / 1MB) MB"
+          }
 
       - name: Install Inno Setup
         shell: pwsh
