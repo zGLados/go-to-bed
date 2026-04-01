@@ -2,7 +2,7 @@
 ; https://jrsoftware.org/isinfo.php
 
 #define MyAppName "Go-to-Bed"
-#define MyAppVersion "2.0.0"
+#define MyAppVersion "2.0.1"
 #define MyAppPublisher "Go-to-Bed Contributors"
 #define MyAppURL "https://github.com/zGLados/go-to-bed"
 #define MyAppExeName "GoToBed.ps1"
@@ -154,12 +154,11 @@ begin
   Y := Y + 35;
   
   { Individual day selection }
-  TLabel.Create(ConfigPage).Parent := ConfigPage.Surface;
-  with TLabel(ConfigPage.FindComponent('TLabel')) do begin
-    Caption := 'Or select individual days:';
-    Left := 0;
-    Top := Y;
-  end;
+  Label4 := TLabel.Create(ConfigPage);
+  Label4.Parent := ConfigPage.Surface;
+  Label4.Caption := 'Or select individual days:';
+  Label4.Left := 0;
+  Label4.Top := Y;
   
   Y := Y + 20;
   
