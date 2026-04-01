@@ -284,11 +284,13 @@ begin
   ErrorMsg := '';
   
   { Validate hour }
-  if not TryStrToInt(HourEdit.Text, Hour) or (Hour < 0) or (Hour > 23) then
+  Hour := StrToIntDef(HourEdit.Text, -1);
+  if (Hour < 0) or (Hour > 23) then
     ErrorMsg := 'Hour must be between 0 and 23';
   
   { Validate minute }
-  if (ErrorMsg = '') and (not TryStrToInt(MinuteEdit.Text, Minute) or (Minute < 0) or (Minute > 59)) then
+  Minute := StrToIntDef(MinuteEdit.Text, -1);
+  if (ErrorMsg = '') and ((Minute < 0) or (Minute > 59)) then
     ErrorMsg := 'Minute must be between 0 and 59';
   
   { Check at least one day selected }
