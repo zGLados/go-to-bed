@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - PowerShell Rewrite
+
+### 🎯 Major Change: Complete PowerShell Rewrite
+- ✨ **No more Go/Fyne** - Complete rewrite in PowerShell
+- 🖥️ **WPF UI** - Beautiful native Windows fullscreen banner
+- ⚡ **No compilation** - PowerShell scripts run directly
+- 🚀 **Fast builds** - GitHub Actions builds in ~30 seconds (was 5+ minutes)
+- 📦 **Smaller installer** - <1MB vs >50MB
+- 🔧 **Easier maintenance** - Pure PowerShell, no CGO dependencies
+
+### Features
+- WPF-based fullscreen banner with modern UI
+- Background service using PowerShell
+- Silent launcher (VBScript) for hidden execution
+- Live config reloading (no restart needed)
+- System notifications + fullscreen banner
+- Auto-close banner after 2 minutes
+
+### Technical
+- `GoToBed.ps1` - Main background service
+- `Show-Banner.ps1` - WPF fullscreen banner UI
+- `Start-GoToBed.vbs` - Silent launcher (hides console)
+- Removed Go, Fyne, CGO dependencies
+- Simplified GitHub Actions workflow
+- Native Windows .NET Framework (WPF)
+
 ## [1.3.0] - Installer Configuration Wizard
 
 ### 🎯 Major Feature: In-Installer Configuration

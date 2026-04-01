@@ -40,61 +40,74 @@ Or edit directly:
 
 ### Prerequisites
 ```bash
-# Windows: Install Go
-# https://golang.org/dl/
-
+# Windows: PowerShell 5.1+ (included)
 # Inno Setup for installer (optional)
 # https://jrsoftware.org/isinfo.php
 ```
 
 ### Setup Project
-```bash
+```powershell
 git clone https://github.com/zGLados/go-to-bed.git
 cd go-to-bed
-go mod download
-go build -o go-to-bed.exe .
+# No dependencies to install! PowerShell scripts run directly
 ```
 
 ### Test
-```bash
-# Run directly
-go run .
+```powershell
+# Run directly (with console output)
+.\GoToBed.ps1
 
-# With custom time (edit config first):
-# %USERPROFILE%\.go-to-bed.conf
+# Run hidden (background mode)
+.\Start-GoToBed.vbs
+
+# Test banner
+.\Show-Banner.ps1 -Username "YourName"
 ```
 
 ### Build Installer
-```bash
+```powershell
 # With Inno Setup
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 ```
 
 ### Create Release
-```bash
+```powershell
 # Create tag
-git tag v1.3.0
-git push origin v1.3.0
+git tag v2.0.0
+git push origin v2.0.0
 
-# GitHub Actions builds the installer automatically!
+# GitHub Actions builds the installer automatically in ~30 seconds!
 ```
 
 ## Troubleshooting
 
 ### Program not running
-Open Task Manager (Ctrl+Shift+Esc) and check if `go-to-bed.exe` is running.
+Open Task Manager (Ctrl+Shift+Esc) and check for:
+- `powershell.exe` running GoToBed.ps1
+- `wscript.exe` running Start-GoToBed.vbs
 
-If not, start it manually:
-- Start Menu → "Go-to-Bed"
-- Or: `%ProgramFiles%\Go-to-Bed\go-to-bed.exe`
+If not running, start it manually:
+- Start Menu → "Go-to-Bed"  
+- Or: `%ProgramFiles%\Go-to-Bed\Start-GoToBed.vbs`
 
-### Fullscreen not working
-Make sure you're using a graphical Windows environment (not Server Core).
+### Console window appears
+Use the VBS launcher instead:
+```powershell
+.\Start-GoToBed.vbs  # Hides console
+```
+
+### Banner not showing
+Check PowerShell execution policy:
+```powershell
+Get-ExecutionPolicy
+# Should be RemoteSigned or Unrestricted
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
 
 ### Change time
-Run the configuration script:
+Configuration updates are picked up automatically (no restart needed):
 - Start Menu → "Go-to-Bed" → "Configuration"
-- Restart not required (watches config file)
+- Or edit: `%USERPROFILE%\.go-to-bed.conf`
 
 ## Next Steps
 

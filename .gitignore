@@ -1,24 +1,7 @@
-# Binaries for programs and plugins
+# Build outputs
+Output/
 *.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-
-# Test binary, built with `go test -c`
-*.test
-
-# Output of the go coverage tool
-*.out
-
-# Build directory
-build/
-dist/
-release/
-artifacts/
-
-# Go workspace file
-go.work
+!GoToBed-Setup.exe
 
 # IDE
 .idea/
@@ -34,8 +17,6 @@ Thumbs.db
 # Config (user-specific)
 .go-to-bed.conf
 
-# Binaries
-go-to-bed
-go-to-bed-*
-!go-to-bed-*.tar.gz
-!go-to-bed-*.zip
+# Test files
+test.ps1
+test.vbs

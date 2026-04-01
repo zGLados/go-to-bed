@@ -2,10 +2,11 @@
 ; https://jrsoftware.org/isinfo.php
 
 #define MyAppName "Go-to-Bed"
-#define MyAppVersion "1.2.0"
+#define MyAppVersion "2.0.0"
 #define MyAppPublisher "Go-to-Bed Contributors"
 #define MyAppURL "https://github.com/zGLados/go-to-bed"
-#define MyAppExeName "go-to-bed.exe"
+#define MyAppExeName "GoToBed.ps1"
+#define MyAppLauncher "Start-GoToBed.vbs"
 
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
@@ -26,7 +27,7 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 PrivilegesRequired=lowest
-UninstallDisplayIcon={app}\{#MyAppExeName}
+UninstallDisplayIcon={sys}\WindowsPowerShell\v1.0\powershell.exe
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
@@ -36,25 +37,27 @@ Name: "autostart"; Description: "Start automatically when Windows starts"; Group
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
 
 [Files]
-Source: "go-to-bed.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "GoToBed.ps1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Show-Banner.ps1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "Start-GoToBed.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "configure.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "config.example"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
-Name: "{group}\Konfiguration"; Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppLauncher}"
+Name: "{group}\Configuration"; Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppLauncher}"; Tasks: desktopicon
 
 [Registry]
 ; Autostart registry entry
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppExeName}"""; Flags: uninsdeletevalue; Tasks: autostart
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppLauncher}"""; Flags: uninsdeletevalue; Tasks: autostart
 
 [Run]
 ; Start application after installation
-Filename: "{app}\{#MyAppExeName}"; Description: "Start {#MyAppName} now"; Flags: postinstall skipifsilent nowait
+Filename: "{app}\{#MyAppLauncher}"; Description: "Start {#MyAppName} now"; Flags: postinstall skipifsilent nowait
 
 [Code]
 var
@@ -360,20 +363,11 @@ var
   ResultCode: Integer;
 begin
   Result := True;
-  { Check if already running }
-  if CheckForMutexes('Global\GoToBedMutex') then
-  begin
-    if MsgBox('Go-to-Bed is already running. Should the application be closed?', mbConfirmation, MB_YESNO) = IDYES then
-    begin
-      Exec('taskkill', '/F /IM go-to-bed.exe', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
-    end
-    else
-    begin
-      Result := False;
-    end;
-  end;
+  { Check if already running - check for PowerShell process }
+  { We'll just proceed, taskkill will handle it during install if needed }
 end;
 
 [UninstallRun]
-; Stop the application before uninstall
-Filename: "taskkill"; Parameters: "/F /IM go-to-bed.exe"; Flags: runhidden; RunOnceId: "StopGoToBed"
+; Stop the application before uninstall  
+Filename: "taskkill"; Parameters: "/F /IM powershell.exe /FI ""WINDOWTITLE eq Go-to-Bed*"""; Flags: runhidden; RunOnceId: "StopGoToBed"
+Filename: "taskkill"; Parameters: "/F /IM wscript.exe /FI ""WINDOWTITLE eq Start-GoToBed.vbs*"""; Flags: runhidden; RunOnceId: "StopLauncher"

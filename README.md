@@ -4,15 +4,18 @@ A simple tool that reminds you to go to bed at a specific time!
 
 **Windows Installer available!** - One-click installation with automatic autostart 🚀
 
+**Now powered by PowerShell + WPF** - Native Windows, lightweight, instant updates!
+
 ## Features
 
 - 🕐 Configurable bedtime
 - 📅 **Weekday selection** - Choose which days the reminder appears
-- 🖥️ Large fullscreen banner reminder
+- 🖥️ **WPF fullscreen banner** - Beautiful native Windows UI
 - 👤 Shows your username in the message
 - 🔄 Runs in the background as a service
 - 🚀 **Windows: One-click installer** - Automatic autostart and configuration
-- 📦 Easy installation
+- ⚡ **PowerShell-based** - Lightweight, no compilation needed
+- 📦 Easy installation and updates
 
 ## Installation
 
@@ -126,8 +129,8 @@ You can close the banner by clicking "OK, I'm going to bed now", or it will auto
 
 ### Prerequisites
 
-- Go 1.21 or higher
-- **For Windows:** Automatically supported by Go build tools
+- **PowerShell 5.1+** (included in Windows 10/11)
+- **Inno Setup** (for building installer): https://jrsoftware.org/isinfo.php
 
 ### Build from Source
 
@@ -137,21 +140,12 @@ You can close the banner by clicking "OK, I'm going to bed now", or it will auto
    cd go-to-bed
    ```
 
-2. Install dependencies:
-   ```bash
-   go mod download
+2. **Run directly** (no build needed!):
+   ```powershell
+   .\GoToBed.ps1
    ```
 
-3. **Build for Windows:**
-   ```bash
-   # Standard build (with console window)
-   go build -o go-to-bed.exe .
-   
-   # Background build (without console window)
-   go build -ldflags "-H windowsgui" -o go-to-bed.exe .
-   ```
-
-4. **Build installer** (Windows with Inno Setup):
+3. **Build installer** (optional):
    ```bash
    # Install Inno Setup: https://jrsoftware.org/isinfo.php
    # Then:
@@ -160,15 +154,29 @@ You can close the banner by clicking "OK, I'm going to bed now", or it will auto
 
 ### Test Locally
 
-```bash
-go run .
+```powershell
+# Run with console output
+.\GoToBed.ps1
+
+# Run hidden (background mode)
+.\Start-GoToBed.vbs
 ```
+
+### Project Structure
+
+- `GoToBed.ps1` - Main program (background service)
+- `Show-Banner.ps1` - WPF fullscreen banner
+- `Start-GoToBed.vbs` - Silent launcher (hides console)
+- `configure.ps1` - Configuration wizard
+- `installer.iss` - Inno Setup installer script
 
 ## GitHub Actions
 
 This project uses GitHub Actions for automated installer builds:
 
-- Every tag push (e.g., `v1.2.0`) automatically creates a Windows installer
+- Every tag push (e.g., `v2.0.0`) automatically creates a Windows installer
+- **No compilation needed** - PowerShell scripts are packaged directly
+- **Fast builds** - Typically completes in ~30 seconds
 - The installer is published as a release asset
 - Anyone can download the latest version easily
 
@@ -176,11 +184,11 @@ This project uses GitHub Actions for automated installer builds:
 
 1. Create and push a tag:
    ```bash
-   git tag v1.2.0
-   git push origin v1.2.0
+   git tag v2.0.0
+   git push origin v2.0.0
    ```
 
-2. GitHub Actions automatically builds the installer
+2. GitHub Actions automatically builds the installer (~30 seconds)
 3. A new release is created with `GoToBed-Setup.exe`
 
 ## License
@@ -200,6 +208,8 @@ Pull requests are welcome! For major changes, please open an issue first.
 
 - [x] **Windows Installer (.exe)** - One-click installation ✅
 - [x] **Installer configuration wizard** - Time and day selection during setup ✅
+- [x] **PowerShell rewrite** - Native Windows, no compilation needed ✅
+- [x] **WPF UI** - Beautiful native fullscreen banner ✅
 - [ ] **Linux .deb/.rpm packages** - System package manager integration
 - [ ] **macOS App Bundle (.app)** - Installable app with setup script
 - [ ] System tray icon for Windows
