@@ -1,0 +1,33 @@
+# Go-to-Bed Configuration Example
+
+# This is an example configuration file. 
+# Copy this to ~/.go-to-bed.conf and edit as needed.
+
+{
+  "bedtime": "22:00",
+  "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+}
+
+# Weekday options:
+# - Mon (Monday/Montag)
+# - Tue (Tuesday/Dienstag)
+# - Wed (Wednesday/Mittwoch)
+# - Thu (Thursday/Donnerstag)
+# - Fri (Friday/Freitag)
+# - Sat (Saturday/Samstag)
+# - Sun (Sunday/Sonntag)
+
+# Examples:
+# 
+# Every day:
+# {"bedtime": "22:00", "weekdays": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]}
+#
+# Weekdays only:
+# {"bedtime": "23:00", "weekdays": ["Mon","Tue","Wed","Thu","Fri"]}
+#
+# Weekend only:
+# {"bedtime": "01:00", "weekdays": ["Sat","Sun"]}
+#
+# Custom (e.g., work nights):
+# {"bedtime": "22:30", "weekdays": ["Sun","Mon","Tue","Wed","Thu"]}
+

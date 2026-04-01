@@ -1,0 +1,41 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool
+*.out
+
+# Build directory
+build/
+dist/
+release/
+artifacts/
+
+# Go workspace file
+go.work
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config (user-specific)
+.go-to-bed.conf
+
+# Binaries
+go-to-bed
+go-to-bed-*
+!go-to-bed-*.tar.gz
+!go-to-bed-*.zip
