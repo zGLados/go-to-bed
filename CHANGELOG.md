@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-04-01
+
+### ✨ New Features
+- 🎨 **Beautiful WPF Configuration GUI** - Modern, user-friendly settings interface
+- 🖱️ **Desktop icon opens settings** - Double-click to configure instead of starting service
+- 🎯 **Quick-select buttons** - Easy day selection (Every Day, Weekdays, Weekend)
+- 📱 **Better UX** - Intuitive hour/minute input with validation
+- 💾 **Live preview** - See your settings before saving
+
+### Changed
+- README no longer opens automatically after installation
+- Desktop shortcut labeled as "Settings" for clarity
+- Improved installer UI with better descriptions and icons
+
+### Technical
+- Complete rewrite of configure.ps1 with WPF
+- Better icon usage in installer
+- Cleaner user experience throughout
+
 ## [2.0.3] - 2026-04-01
 
 ### Fixed

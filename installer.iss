@@ -2,7 +2,7 @@
 ; https://jrsoftware.org/isinfo.php
 
 #define MyAppName "Go-to-Bed"
-#define MyAppVersion "2.0.3"
+#define MyAppVersion "2.1.0"
 #define MyAppPublisher "Go-to-Bed Contributors"
 #define MyAppURL "https://github.com/zGLados/go-to-bed"
 #define MyAppExeName "GoToBed.ps1"
@@ -41,14 +41,14 @@ Source: "Show-Banner.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "Start-GoToBed.vbs"; DestDir: "{app}"; Flags: ignoreversion
 Source: "configure.ps1"; DestDir: "{app}"; Flags: ignoreversion
 Source: "config.example"; DestDir: "{app}"; Flags: ignoreversion
-Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion isreadme
+Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -File ""{app}\GoToBed.ps1"" -Hidden"; WorkingDir: "{app}"; IconFilename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"
 Name: "{group}\Configuration"; Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "powershell.exe"; Parameters: "-WindowStyle Hidden -ExecutionPolicy Bypass -File ""{app}\GoToBed.ps1"" -Hidden"; WorkingDir: "{app}"; IconFilename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName} Settings"; Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"; IconFilename: "{sys}\imageres.dll"; IconIndex: 1; Tasks: desktopicon
 
 [Registry]
 ; Autostart registry entry - use wscript with VBS for silent start
@@ -70,16 +70,26 @@ var
 procedure CreateConfigPage;
 var
   Y: Integer;
-  Label1, Label2, Label3, Label4: TLabel;
+  Label1, Label2, Label3, Label4, Label5: TLabel;
 begin
-  ConfigPage := CreateCustomPage(wpSelectTasks, 'Bedtime Configuration', 'Choose when you want to be reminded to go to bed');
+  ConfigPage := CreateCustomPage(wpSelectTasks, '🌙 Bedtime Configuration', 'Set your preferred bedtime and active days');
   
   Y := 10;
+  
+  { Info text }
+  Label5 := TLabel.Create(ConfigPage);
+  Label5.Parent := ConfigPage.Surface;
+  Label5.Caption := 'Tip: You can change these settings anytime using the desktop icon!';
+  Label5.Left := 0;
+  Label5.Top := Y;
+  Label5.Font.Color := clGray;
+  
+  Y := Y + 25;
   
   { Bedtime selection }
   Label1 := TLabel.Create(ConfigPage);
   Label1.Parent := ConfigPage.Surface;
-  Label1.Caption := 'Bedtime (24-hour format):';
+  Label1.Caption := '⏰ Bedtime (24-hour format):';
   Label1.Left := 0;
   Label1.Top := Y;
   Label1.Font.Style := [fsBold];
@@ -117,7 +127,7 @@ begin
   { Quick selection options }
   Label4 := TLabel.Create(ConfigPage);
   Label4.Parent := ConfigPage.Surface;
-  Label4.Caption := 'Active days:';
+  Label4.Caption := '📅 Active days:';
   Label4.Left := 0;
   Label4.Top := Y;
   Label4.Font.Style := [fsBold];
