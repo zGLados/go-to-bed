@@ -14,6 +14,8 @@ Ein einfaches Tool, das dich zu einer bestimmten Uhrzeit daran erinnert, ins Bet
 
 ## Installation
 
+**Hinweis:** Die Downloads enthalten kompilierte Binaries, aber **noch keine automatischen Installer**. Die Installation erfolgt über die mitgelieferten Skripte.
+
 ### Schnellinstallation (empfohlen)
 
 1. Lade die neueste Version für dein System von den [Releases](../../releases/latest) herunter:
@@ -250,6 +252,9 @@ Pull Requests sind willkommen! Für größere Änderungen öffne bitte zuerst ei
 
 ## Roadmap
 
+- [ ] **Windows Installer (.msi oder .exe)** - Ein-Klick Installation
+- [ ] **macOS App Bundle (.app)** - Installierbare App mit Installationsskript
+- [ ] **Linux .deb/.rpm Pakete** - System-Package-Manager Integration
 - [ ] Bessere macOS Integration (LaunchAgent)
 - [ ] Windows Service Support
 - [ ] Mehrere Erinnerungszeiten pro Tag
