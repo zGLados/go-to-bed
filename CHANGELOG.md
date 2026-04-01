@@ -1,57 +1,78 @@
 # Changelog
 
-Alle wichtigen Änderungen an diesem Projekt werden in dieser Datei dokumentiert.
+All notable changes to this project will be documented in this file.
+
+## [1.3.0] - Installer Configuration Wizard
+
+### 🎯 Major Feature: In-Installer Configuration
+- ✨ **Custom wizard page** - Configure bedtime and weekdays during installation
+- ⏰ **Time selection** - Hour and minute input fields
+- 📅 **Weekday selection** - Every day, weekdays, weekend, or custom
+- ✅ **Input validation** - Ensures valid time and at least one day selected
+- 💾 **Auto-save** - Configuration saved automatically after installation
+
+### Changed
+- 🌍 **English documentation** - All docs translated for international use
+- 📝 README, QUICKSTART, and CHANGELOG now in English
+- 🗑️ Removed German-only installer messages
+
+### Technical
+- Pascal Script code for custom wizard pages
+- JSON config file creation during installation
+- No longer requires manual PowerShell configuration script
+- Quick-select buttons (Every day, Weekdays, Weekend)
 
 ## [1.2.0] - Windows Installer Release
 
-### 🎯 Hauptfeature: Windows Installer
-- ✨ **Ein-Klick Installer (.exe)** - Einfache Installation mit Inno Setup
-- 🚀 **Automatischer Autostart** - Optional beim Windows-Start ausführen
-- ⚙️ **Geführte Konfiguration** - Wizard während der Installation
-- 🗑️ **Saubere Deinstallation** - Über Windows Systemsteuerung
-- 📋 **Start-Menü Integration** - Verknüpfungen für Programm und Konfiguration
+### 🎯 Major Feature: One-Click Windows Installer
+- ✨ **Inno Setup based installer** (GoToBed-Setup.exe)
+- 🚀 Optional automatic startup at Windows start
+- ⚙️ Guided configuration wizard during installation
+- 🗑️ Clean uninstallation via Windows Control Panel
+- 📋 Start menu integration (Program + Configuration)
+- 🔧 Registry integration for autostart
 
-### Geändert
-- 🎯 **Fokus auf Windows** - Linux/macOS Support temporär pausiert
-- 🔧 Build-Flags optimiert für Windows (`-ldflags "-H windowsgui"`)
-- 📖 README komplett überarbeitet für Windows-Nutzer
+### Changed
+- 🎯 Focus on Windows (Linux/macOS temporarily paused)
+- 📖 Complete README rewrite for Windows
+- 🔨 Build with -ldflags "-H windowsgui" (hides console)
 
-### Technisch
-- Inno Setup Skript für Installer-Generierung
-- GitHub Actions baut automatisch Installer bei jedem Release
-- Registry-Integration für Autostart
-- Mutex-Check für Single-Instance (im Installer)
+### Technical
+- Inno Setup script for installer generation
+- GitHub Actions builds installer automatically on each release
+- Registry integration for autostart
+- Mutex check for single instance (in installer)
 
 ## [1.1.0] - Weekday Selection Feature
 
-### Hinzugefügt
-- 📅 **Wochentagauswahl**: Du kannst jetzt auswählen, an welchen Wochentagen die Erinnerung erscheinen soll
-- 🔧 Interaktives Konfigurationsskript mit 4 Optionen:
-  - Jeden Tag (Montag bis Sonntag)
-  - Werktage (Montag bis Freitag)
-  - Wochenende (Samstag und Sonntag)
-  - Benutzerdefiniert (wähle einzelne Tage)
-- 💻 PowerShell-Konfigurationsskript für Windows (`configure.ps1`)
-- 📝 JSON-basierte Konfigurationsdatei für bessere Struktur
+### Added
+- 📅 **Weekday selection** - Choose when to show reminder (every day, weekdays, weekend, custom)
+- 🔧 Interactive configuration script with 4 options:
+  - Every day (Monday to Sunday)
+  - Weekdays (Monday to Friday)
+  - Weekend (Saturday and Sunday)
+  - Custom (select individual days)
+- 💻 PowerShell configuration script for Windows (`configure.ps1`)
+- 📝 JSON-based configuration file for better structure
 
-### Geändert
-- ⚙️ Konfigurationsdateiformat von einfachem Text zu JSON
-- 📖 README erweitert mit detaillierten Konfigurationsbeispielen
-- 🔄 Automatische Migration von alten Konfigurationen zum neuen Format
+### Changed
+- ⚙️ Configuration file format from simple text to JSON
+- 📖 README extended with detailed configuration examples
+- 🔄 Automatic migration from old configurations to new format
 
-### Technisch
-- Config-Struktur erweitert mit `weekdays` Array
-- Wochentag-Validierung in der Hauptschleife
-- Logging erweitert um aktive Wochentage
+### Technical
+- Config structure extended with `weekdays` array
+- Weekday validation in main loop
+- Extended logging for active weekdays
 
 ## [1.0.0] - Initial Release
 
-### Hinzugefügt
-- 🌙 Vollbild-Banner zur Schlafenszeit
-- ⏰ Konfigurierbare Schlafenszeit
-- 👤 Personalisierte Nachricht mit Benutzernamen
-- 🔄 Background-Service (systemd für Linux)
-- 📦 Multi-Platform Support (Linux, macOS, Windows)
-- 🚀 GitHub Actions für automatische Builds
-- 📝 Vollständige Dokumentation
-- 🛠️ Einfaches Installationsskript
+### Added
+- 🌙 Fullscreen banner at bedtime
+- ⏰ Configurable bedtime
+- 👤 Personalized message with username
+- 🔄 Background service (systemd for Linux)
+- 📦 Multi-platform support (Linux, macOS, Windows)
+- 🚀 GitHub Actions for automatic builds
+- 📝 Complete documentation
+- 🛠️ Simple installation script

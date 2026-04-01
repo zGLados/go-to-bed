@@ -1,79 +1,74 @@
 # 🌙 Go-to-Bed
 
-Ein einfaches Tool, das dich zu einer bestimmten Uhrzeit daran erinnert, ins Bett zu gehen!
+A simple tool that reminds you to go to bed at a specific time!
 
-**Windows-Installer verfügbar!** - Ein-Klick Installation mit automatischem Autostart 🚀
+**Windows Installer available!** - One-click installation with automatic autostart 🚀
 
 ## Features
 
-- 🕐 Konfigurierbare Schlafenszeit
-- � **Wochentagauswahl** - Wähle an welchen Tagen die Erinnerung erscheint
-- �🖥️ Großer Vollbild-Banner zur Erinnerung
-- 👤 Zeigt deinen Benutzernamen in der Nachricht
-- 🔄 Läuft im Hintergrund als Service
-- 🚀 **Windows: Ein-Klick Installer** - Automatischer Autostart und Konfiguration
-- 📦 Einfache Installation
+- 🕐 Configurable bedtime
+- 📅 **Weekday selection** - Choose which days the reminder appears
+- 🖥️ Large fullscreen banner reminder
+- 👤 Shows your username in the message
+- 🔄 Runs in the background as a service
+- 🚀 **Windows: One-click installer** - Automatic autostart and configuration
+- 📦 Easy installation
 
 ## Installation
 
-### Windows (Empfohlen) 🎯
+### Windows (Recommended) 🎯
 
-**Ein-Klick Installation:**
+**One-Click Installation:**
 
-1. Lade `GoToBed-Setup.exe` von den [Releases](../../releases/latest) herunter
-2. Doppelklick auf die heruntergeladene Datei
-3. Folge dem Installationsassistenten:
-   - ✅ **"Automatisch beim Windows-Start ausführen"** wird empfohlen
-   - Der Installer konfiguriert automatisch den Autostart
-   - Nach der Installation wirst du nach deiner Schlafenszeit gefragt
-4. **Fertig!** Das Programm läuft jetzt im Hintergrund
+1. Download `GoToBed-Setup.exe` from the [Releases](../../releases/latest)
+2. Double-click the downloaded file
+3. Follow the installation wizard:
+   - ⏰ **Set your bedtime** - Choose the hour and minute
+   - 📅 **Select active days** - Every day, weekdays, weekend, or custom
+   - ✅ **"Start automatically when Windows starts"** is recommended
+4. **Done!** The program is now running in the background
 
-**Features des Installers:**
-- ✨ Automatische Installation in `Programme\Go-to-Bed`
-- 🚀 Optionaler Autostart beim Windows-Start
-- ⚙️ Geführte Konfiguration während der Installation
-- 🗑️ Saubere Deinstallation über Windows-Systemsteuerung
+**Installer Features:**
+- ✨ Automatic installation to `Program Files\Go-to-Bed`
+- 🚀 Optional autostart at Windows startup
+- ⚙️ Guided configuration **during** installation
+- 🗑️ Clean uninstallation via Windows Control Panel
+- 📋 Start menu integration
 
-**Konfiguration ändern:**
-- Start-Menü → "Go-to-Bed" → "Konfiguration"
-- Oder führe aus: `%ProgramFiles%\Go-to-Bed\configure.ps1`
+**Change Configuration:**
+- Start Menu → "Go-to-Bed" → "Configuration"
+- Or run: `%ProgramFiles%\Go-to-Bed\configure.ps1`
 
 ---
 
-### Linux & macOS (Aktuell nicht verfügbar)
+### Linux & macOS (Currently Unavailable)
 
-Die Entwicklung konzentriert sich momentan auf Windows. Linux und macOS Versionen sind geplant.
+Development is currently focused on Windows. Linux and macOS versions are planned.
 
-**Hinweis:** Frühere Versionen unterstützten Linux. Wenn du Linux benötigst, schau dir ältere Releases an oder baue selbst von Source.
+**Note:** Earlier versions supported Linux. If you need Linux, check older releases or build from source.
 
-## Konfiguration
+## Configuration
 
-### Schlafenszeit und Wochentage einstellen
+### Bedtime and Weekdays
 
-Nach der Installation wirst du automatisch gefragt:
-1. **Wann** deine Schlafenszeit sein soll (z.B. 22:00)
-2. **An welchen Wochentagen** die Erinnerung erscheinen soll
+During installation, you will be asked:
+1. **When** your bedtime should be (e.g., 22:00)
+2. **Which weekdays** the reminder should appear
 
-Um die Einstellungen später zu ändern, führe aus:
+The configuration wizard offers these options:
+- **Every day** (Monday to Sunday) - for regular sleep schedules
+- **Weekdays** (Monday to Friday) - work days only
+- **Weekend** (Saturday and Sunday) - longer nights on weekends
+- **Custom** - select individual days
 
-```bash
-./configure.sh
+### Manual Configuration
+
+The configuration file is located at:
+```
+%USERPROFILE%\.go-to-bed.conf
 ```
 
-Das Konfigurationsskript bietet folgende Optionen:
-- **Jeden Tag** (Montag bis Sonntag) - für regelmäßige Schlafenszeiten
-- **Werktage** (Montag bis Freitag) - nur an Arbeitstagen
-- **Wochenende** (Samstag und Sonntag) - längere Nächte am Wochenende
-- **Benutzerdefiniert** - wähle einzelne Tage aus
-
-### Manuelle Konfiguration
-
-Die Konfigurationsdatei befindet sich unter:
-```
-~/.go-to-bed.conf
-```
-
-Sie ist im JSON-Format und kann auch direkt bearbeitet werden:
+It's in JSON format and can be edited directly:
 
 ```json
 {
@@ -82,18 +77,18 @@ Sie ist im JSON-Format und kann auch direkt bearbeitet werden:
 }
 ```
 
-**Wochentage:**
-- `Mon` = Montag
-- `Tue` = Dienstag
-- `Wed` = Mittwoch
-- `Thu` = Donnerstag
-- `Fri` = Freitag
-- `Sat` = Samstag
-- `Sun` = Sonntag
+**Weekday codes:**
+- `Mon` = Monday
+- `Tue` = Tuesday
+- `Wed` = Wednesday
+- `Thu` = Thursday
+- `Fri` = Friday
+- `Sat` = Saturday
+- `Sun` = Sunday
 
-**Beispiele:**
+**Examples:**
 
-Nur am Wochenende später ins Bett:
+Weekend only, later bedtime:
 ```json
 {
   "bedtime": "01:00",
@@ -101,7 +96,7 @@ Nur am Wochenende später ins Bett:
 }
 ```
 
-Werktags 22 Uhr, am Wochenende keine Erinnerung:
+Weekdays only:
 ```json
 {
   "bedtime": "22:00",
@@ -109,61 +104,61 @@ Werktags 22 Uhr, am Wochenende keine Erinnerung:
 }
 ```
 
-## Verwendung
+## Usage
 
-Nachdem der Service installiert und konfiguriert ist, läuft er automatisch im Hintergrund.
+After the service is installed and configured, it runs automatically in the background.
 
-Zur konfigurierten Schlafenszeit **an den ausgewählten Wochentagen** erscheint:
-1. Eine System-Benachrichtigung
-2. Ein großer Vollbild-Banner mit deinem Benutzernamen
+At the configured bedtime **on the selected weekdays**, it will show:
+1. A system notification
+2. A large fullscreen banner with your username
 
-Der Banner zeigt:
+The banner displays:
 ```
-🌙 [Dein Name], es ist Zeit ins Bett zu gehen! 🌙
-Gute Nacht! 😴
+🌙 [Your Name], it's time to go to bed! 🌙
+Good night! 😴
 ```
 
-Du kannst den Banner mit dem Button "OK, ich gehe jetzt ins Bett" schließen, oder er verschwindet automatisch nach 2 Minuten.
+You can close the banner by clicking "OK, I'm going to bed now", or it will automatically disappear after 2 minutes.
 
-**Hinweis:** An Tagen, die nicht in deiner Konfiguration ausgewählt sind, erscheint keine Erinnerung.
+**Note:** On days not selected in your configuration, no reminder will appear.
 
-## Entwicklung
+## Development
 
-### Voraussetzungen
+### Prerequisites
 
-- Go 1.21 oder höher
-- **Für Windows:** Wird automatisch durch Go build tools unterstützt
+- Go 1.21 or higher
+- **For Windows:** Automatically supported by Go build tools
 
-### Build von Quellcode
+### Build from Source
 
-1. Repository klonen:
+1. Clone repository:
    ```bash
    git clone https://github.com/zGLados/go-to-bed.git
    cd go-to-bed
    ```
 
-2. Dependencies installieren:
+2. Install dependencies:
    ```bash
    go mod download
    ```
 
-3. **Windows** bauen:
+3. **Build for Windows:**
    ```bash
-   # Standard build (mit Konsolenfenster)
+   # Standard build (with console window)
    go build -o go-to-bed.exe .
    
-   # Background build (ohne Konsolenfenster)
+   # Background build (without console window)
    go build -ldflags "-H windowsgui" -o go-to-bed.exe .
    ```
 
-4. **Installer** bauen (Windows mit Inno Setup):
+4. **Build installer** (Windows with Inno Setup):
    ```bash
-   # Inno Setup installieren: https://jrsoftware.org/isinfo.php
-   # Dann:
+   # Install Inno Setup: https://jrsoftware.org/isinfo.php
+   # Then:
    "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
    ```
 
-### Lokal testen
+### Test Locally
 
 ```bash
 go run .
@@ -171,52 +166,53 @@ go run .
 
 ## GitHub Actions
 
-Dieses Projekt nutzt GitHub Actions für automatische Installer-Builds:
+This project uses GitHub Actions for automated installer builds:
 
-- Bei jedem Tag-Push (z.B. `v1.2.0`) wird automatisch ein Windows-Installer erstellt
-- Der Installer wird als Release-Asset veröffentlicht
-- Jeder kann die neueste Version einfach herunterladen
+- Every tag push (e.g., `v1.2.0`) automatically creates a Windows installer
+- The installer is published as a release asset
+- Anyone can download the latest version easily
 
-### Release erstellen
+### Create a Release
 
-1. Tag erstellen und pushen:
+1. Create and push a tag:
    ```bash
    git tag v1.2.0
    git push origin v1.2.0
    ```
 
-2. GitHub Actions baut automatisch den Installer
-3. Ein neues Release wird mit `GoToBed-Setup.exe` erstellt
+2. GitHub Actions automatically builds the installer
+3. A new release is created with `GoToBed-Setup.exe`
 
-## Lizenz
+## License
 
-MIT License - siehe LICENSE Datei für Details.
+MIT License - see LICENSE file for details.
 
-## Beiträge
+## Contributing
 
-Pull Requests sind willkommen! Für größere Änderungen öffne bitte zuerst ein Issue.
+Pull requests are welcome! For major changes, please open an issue first.
 
-## Bekannte Probleme
+## Known Issues
 
-- **Erste Ausführung:** Windows Defender SmartScreen könnte eine Warnung anzeigen (klicke auf "Weitere Informationen" → "Trotzdem ausführen")
-- **Konfiguration:** PowerShell Execution Policy muss Skripte erlauben (wird automatisch mit `-ExecutionPolicy Bypass` umgangen)
+- **First run:** Windows Defender SmartScreen might show a warning (click "More info" → "Run anyway")
+- **Configuration:** PowerShell Execution Policy must allow scripts (automatically bypassed with `-ExecutionPolicy Bypass`)
 
 ## Roadmap
 
-- [x] **Windows Installer (.exe)** - Ein-Klick Installation ✅
-- [ ] **Linux .deb/.rpm Pakete** - System-Package-Manager Integration
-- [ ] **macOS App Bundle (.app)** - Installierbare App mit Installationsskript
-- [ ] System-Tray-Icon für Windows
-- [ ] Mehrere Erinnerungszeiten pro Tag
-- [ ] Snooze-Funktion
-- [ ] Anpassbare Nachrichten
-- [ ] GUI für Konfiguration
-- [x] Wochentagauswahl ✅
+- [x] **Windows Installer (.exe)** - One-click installation ✅
+- [x] **Installer configuration wizard** - Time and day selection during setup ✅
+- [ ] **Linux .deb/.rpm packages** - System package manager integration
+- [ ] **macOS App Bundle (.app)** - Installable app with setup script
+- [ ] System tray icon for Windows
+- [ ] Multiple reminder times per day
+- [ ] Snooze function
+- [ ] Customizable messages
+- [ ] GUI for configuration
+- [x] Weekday selection ✅
 
 ## Support
 
-Bei Problemen oder Fragen öffne bitte ein Issue auf GitHub.
+For issues or questions, please open an issue on GitHub.
 
 ---
 
-Gute Nacht! 🌙💤
+Good night! 🌙💤

@@ -1,40 +1,53 @@
-# 🚀 Schnellstart
+# 🚀 Quickstart
 
-## Für Windows-Nutzer (Empfohlen)
+## For Windows Users (Recommended)
 
-1. **Download**: Gehe zu [Releases](../../releases/latest) und lade `GoToBed-Setup.exe` herunter
+1. **Download**: Go to [Releases](../../releases/latest) and download `GoToBed-Setup.exe`
 
-2. **Installieren**: Doppelklick auf die Datei, Installer-Assistent folgen
+2. **Install**: Double-click the file and follow the wizard
 
-3. **Fertig!** Der Installer:
-   - Installiert das Programm
-   - Richtet optional Autostart ein
-   - Startet die Konfiguration
-   - Du wirst nach deiner Schlafenszeit gefragt 🎉
+3. **Done!** The installer will:
+   - Install the program
+   - Ask you to configure your bedtime and active days
+   - Optionally set up autostart
+   - You're all set! 🎉
 
-## Konfiguration ändern
+## Change Configuration
 
 **Windows:**
-- Start-Menü → "Go-to-Bed" → "Konfiguration"
+- Start Menu → "Go-to-Bed" → "Configuration"
 
-Oder über PowerShell:
+Or via PowerShell:
 ```powershell
 cd "%ProgramFiles%\Go-to-Bed"
 .\configure.ps1
 ```
 
-## Für Entwickler
+The script will ask you:
+1. **Bedtime** (e.g., 22:00)
+2. **Weekdays** (Every day, Weekdays, Weekend, or Custom)
 
-### Voraussetzungen
+Or edit directly:
+```powershell
+# JSON format in: %USERPROFILE%\.go-to-bed.conf
+{
+  "bedtime": "23:00",
+  "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri"]
+}
+```
+
+## For Developers
+
+### Prerequisites
 ```bash
-# Windows: Go installieren
+# Windows: Install Go
 # https://golang.org/dl/
 
-# Inno Setup für Installer (optional)
+# Inno Setup for installer (optional)
 # https://jrsoftware.org/isinfo.php
 ```
 
-### Projekt aufsetzen
+### Setup Project
 ```bash
 git clone https://github.com/zGLados/go-to-bed.git
 cd go-to-bed
@@ -42,70 +55,50 @@ go mod download
 go build -o go-to-bed.exe .
 ```
 
-### Testen
+### Test
 ```bash
-# Direkt ausführen
+# Run directly
 go run .
 
-# Mit benutzerdefinierter Zeit (in 1 Minute)
-# Bearbeite erst die Config:
+# With custom time (edit config first):
 # %USERPROFILE%\.go-to-bed.conf
 ```
 
-### Installer bauen
+### Build Installer
 ```bash
-# Mit Inno Setup
+# With Inno Setup
 "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 ```
 
-### Release erstellen
+### Create Release
 ```bash
-# Tag erstellen
-git tag v1.2.0
-git push origin v1.2.0
+# Create tag
+git tag v1.3.0
+git push origin v1.3.0
 
-# GitHub Actions erstellt automatisch den Installer!
-```
-
-## Konfiguration ändern
-
-**Windows:**
-- Start-Menü → "Go-to-Bed" → "Konfiguration"
-
-Oder über PowerShell:
-```powershell
-cd "%ProgramFiles%\Go-to-Bed"
-.\configure.ps1
-```
-
-Das Skript fragt dich:
-1. **Schlafenszeit** (z.B. 22:00)
-2. **Wochentage** (Jeden Tag, Werktage, Wochenende, oder Benutzerdefiniert)
-
-Oder direkt editieren:
-```powershell
-# JSON-Format verwenden in: %USERPROFILE%\.go-to-bed.conf
-{
-  "bedtime": "23:00",
-  "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri"]
-}
+# GitHub Actions builds the installer automatically!
 ```
 
 ## Troubleshooting
 
-### Programm läuft nicht
-Task-Manager öffnen (Strg+Shift+Esc) und prüfen, ob `go-to-bed.exe` läuft.
+### Program not running
+Open Task Manager (Ctrl+Shift+Esc) and check if `go-to-bed.exe` is running.
 
-Wenn nicht, starte es manuell:
-- Start-Menü → "Go-to-Bed"
-- Oder: `%ProgramFiles%\Go-to-Bed\go-to-bed.exe`
+If not, start it manually:
+- Start Menu → "Go-to-Bed"
+- Or: `%ProgramFiles%\Go-to-Bed\go-to-bed.exe`
 
-### Vollbild funktioniert nicht
-Stelle sicher, dass du eine grafische Windows-Umgebung verwendest (kein Server Core).
+### Fullscreen not working
+Make sure you're using a graphical Windows environment (not Server Core).
 
-## Nächste Schritte
+### Change time
+Run the configuration script:
+- Start Menu → "Go-to-Bed" → "Configuration"
+- Restart not required (watches config file)
 
-- ⭐ Gib dem Projekt einen Star auf GitHub
-- 🐛 Gefunden einen Bug? [Öffne ein Issue](../../issues)
-- 💡 Feature-Idee? [Öffne eine Discussion](../../discussions)
-- 🤝 Möchtest du beitragen? Siehe [CONTRIBUTING.md](CONTRIBUTING.md)
+## Next Steps
+
+- ⭐ Star the project on GitHub
+- 🐛 Found a bug? [Open an issue](../../issues)
+- 💡 Feature idea? [Open a discussion](../../discussions)
+- 🤝 Want to contribute? See the README
