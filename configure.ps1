@@ -299,19 +299,3 @@ $cancelButton.Add_Click({
 
 # Show window
 $window.ShowDialog() | Out-Null
-
-
-Set-Content -Path $CONFIG_FILE -Value $configContent
-
-Write-Host ""
-Write-Host "==================================="
-Write-Host "✓ Konfiguration gespeichert!" -ForegroundColor Green
-Write-Host "==================================="
-Write-Host ""
-Write-Host "Deine Einstellungen:"
-Write-Host "  Schlafenszeit: $BEDTIME"
-Write-Host "  Konfiguration: $CONFIG_FILE"
-Write-Host ""
-Get-Content $CONFIG_FILE
-Write-Host ""
-Write-Host "Wichtig: Starte die go-to-bed Anwendung neu, damit die Änderungen wirksam werden."

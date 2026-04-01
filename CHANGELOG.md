@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.4] - 2026-04-01
+
+### Fixed
+- 🎨 Fixed UTF-8 encoding issues in banner popup
+- Username now displays correctly without garbled characters
+- Removed emoji characters that caused encoding problems
+
+### Changed
+- Cleaner banner display without emojis
+
+## [2.1.3] - 2026-04-01
+
+### Fixed
+- 🐛 Fixed configure.ps1 having duplicate legacy code at the end
+- Config file now properly saved via WPF GUI
+- Service now starts correctly
+
 ## [2.1.2] - 2026-04-01
 
 ### Fixed

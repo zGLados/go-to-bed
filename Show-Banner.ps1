@@ -23,13 +23,6 @@ Add-Type -AssemblyName WindowsBase
     <Grid>
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
             
-            <!-- Moon Emoji -->
-            <TextBlock 
-                Text="🌙" 
-                FontSize="120" 
-                HorizontalAlignment="Center"
-                Margin="0,0,0,40"/>
-            
             <!-- Main Message -->
             <TextBlock 
                 Name="MainMessage"
@@ -43,7 +36,7 @@ Add-Type -AssemblyName WindowsBase
             
             <!-- Subtitle -->
             <TextBlock 
-                Text="Good night! 😴"
+                Text="Good night!"
                 FontSize="36"
                 Foreground="White"
                 HorizontalAlignment="Center"
