@@ -2,7 +2,7 @@
 ; https://jrsoftware.org/isinfo.php
 
 #define MyAppName "Go-to-Bed"
-#define MyAppVersion "2.0.1"
+#define MyAppVersion "2.0.2"
 #define MyAppPublisher "Go-to-Bed Contributors"
 #define MyAppURL "https://github.com/zGLados/go-to-bed"
 #define MyAppExeName "GoToBed.ps1"
@@ -46,18 +46,18 @@ Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion isreadme
 Source: "LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppLauncher}"
+Name: "{group}\{#MyAppName}"; Filename: "{sys}\wscript.exe"; Parameters: """{app}\{#MyAppLauncher}"""; WorkingDir: "{app}"
 Name: "{group}\Configuration"; Filename: "powershell.exe"; Parameters: "-ExecutionPolicy Bypass -File ""{app}\configure.ps1"""; WorkingDir: "{app}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppLauncher}"; Tasks: desktopicon
+Name: "{autodesktop}\{#MyAppName}"; Filename: "{sys}\wscript.exe"; Parameters: """{app}\{#MyAppLauncher}"""; WorkingDir: "{app}"; Tasks: desktopicon
 
 [Registry]
 ; Autostart registry entry
-Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: """{app}\{#MyAppLauncher}"""; Flags: uninsdeletevalue; Tasks: autostart
+Root: HKCU; Subkey: "Software\Microsoft\Windows\CurrentVersion\Run"; ValueType: string; ValueName: "{#MyAppName}"; ValueData: "wscript.exe """"""{app}\{#MyAppLauncher}"""""""; Flags: uninsdeletevalue; Tasks: autostart
 
 [Run]
 ; Start application after installation
-Filename: "{app}\{#MyAppLauncher}"; Description: "Start {#MyAppName} now"; Flags: postinstall skipifsilent nowait
+Filename: "{sys}\wscript.exe"; Parameters: """{app}\{#MyAppLauncher}"""; Description: "Start {#MyAppName} now"; Flags: postinstall skipifsilent nowait
 
 [Code]
 var
