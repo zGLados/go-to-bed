@@ -1,169 +1,181 @@
 # 🌙 Go-to-Bed v2.0
 
-Eine moderne Windows-Anwendung mit Systemtray-Integration, die dich daran erinnert, rechtzeitig ins Bett zu gehen.
+A modern Windows application with system tray integration that reminds you to go to bed on time.
 
 ## ✨ Features
 
-- 🖥️ **Systemtray-Integration** - Läuft im Hintergrund, immer bereit
-- ⏰ **Flexible Zeitplanung** - Stelle deine Schlafenszeit und aktive Wochentage ein
-- 😴 **Snooze-Funktion** - Verschiebe die Erinnerung um einige Minuten
-- 📊 **Statistiken** - Verfolge, wie oft du die Erinnerung befolgst
-- 🎨 **Moderne UI** - Schönes, intuitives Design
-- 🚀 **Autostart** - Automatisch beim Windows-Start (optional)
-- 💾 **Persistente Einstellungen** - Deine Konfiguration wird gespeichert
+- 🖥️ **System Tray Integration** - Runs in the background, always ready
+- ⏰ **Flexible Scheduling** - Set your bedtime and active weekdays
+- 😴 **Snooze Function** - Postpone reminders for a few minutes
+- 📊 **Statistics** - Track how often you follow the reminders
+- 🎨 **Modern UI** - Beautiful, intuitive design
+- 🚀 **Autostart** - Automatically starts with Windows (optional)
+- 💾 **Persistent Settings** - Your configuration is saved
 
 ## 📦 Installation
 
-### Voraussetzungen
+### Prerequisites
 
-- Node.js (Version 18 oder höher)
-- npm (kommt mit Node.js)
+- Node.js (Version 18 or higher)
+- npm (comes with Node.js)
 
-### Schritt 1: Dependencies installieren
+### Step 1: Install Dependencies
 
 ```bash
 npm install
 ```
 
-### Schritt 2: Anwendung starten (Entwicklungsmodus)
+### Step 2: Start Application (Development Mode)
 
 ```bash
 npm start
 ```
 
-### Schritt 3: Installer erstellen
+### Step 3: Create Installer
 
 ```bash
 npm run build:win
 ```
 
-Der Installer wird im Ordner `dist` erstellt.
+The installer will be created in the `dist` folder.
 
-## 🎯 Verwendung
+## 🎯 Usage
 
-### Erste Schritte
+### Getting Started
 
-1. Starte die Anwendung
-2. Das Systemtray-Icon erscheint in der Taskleiste
-3. Rechtsklick auf das Icon → "Einstellungen"
-4. Stelle deine Schlafenszeit und aktive Wochentage ein
-5. Klicke auf "Speichern"
+1. Start the application
+2. The system tray icon appears in the taskbar
+3. Right-click on the icon → "Settings"
+4. Set your bedtime and active weekdays
+5. Click "Save"
 
-### Funktionen
+### Features
 
-**Einstellungen:**
-- Aktiviere/Deaktiviere Erinnerungen
-- Stelle deine Schlafenszeit ein
-- Wähle aktive Wochentage (z.B. nur Wochentage)
-- Passe die Snooze-Dauer an (1-60 Minuten)
+**Settings:**
+- Enable/Disable reminders
+- Set your bedtime
+- Select active weekdays (e.g., weekdays only)
+- Adjust snooze duration (1-60 minutes)
+- Start with Windows
 
-**Erinnerung:**
-- Wenn die eingestellte Zeit erreicht ist, erscheint ein Erinnerungsfenster
-- **Snooze**: Verschiebe die Erinnerung um X Minuten
-- **Okay, ich gehe!**: Bestätige, dass du ins Bett gehst
+**Reminder:**
+- When the set time is reached, a reminder window appears
+- **Snooze**: Postpone the reminder by X minutes
+- **Okay, I'm going!**: Confirm that you're going to bed
 
-**Statistiken:**
-- Sieh, wie viele Erinnerungen du erhalten hast
-- Wie oft du die Erinnerung befolgt hast
-- Deine Erfolgsquote
-- Letzte Aktivitäten
+**Statistics:**
+- See how many reminders you received
+- How often you followed the reminder
+- Your compliance rate
+- Recent activity
 
-### Systemtray-Menü
+### System Tray Menu
 
-- **Schlafenszeit**: Zeigt deine aktuelle Schlafenszeit
-- **Aktiviert/Deaktiviert**: Schalte Erinnerungen ein/aus
-- **Einstellungen**: Öffne das Einstellungsfenster
-- **Statistiken**: Öffne die Statistik-Ansicht
-- **Test Erinnerung**: Teste die Erinnerung manuell
-- **Beenden**: Schließe die Anwendung
+- **Bedtime**: Shows your current bedtime
+- **Enabled/Disabled**: Toggle reminders on/off
+- **Settings**: Open the settings window
+- **Statistics**: Open the statistics view
+- **Show Data Folder**: Open the folder containing config files
+- **Test Reminder**: Test the reminder manually
+- **Quit**: Close the application
 
-## 🛠️ Entwicklung
+## 🛠️ Development
 
-### Projektstruktur
+### Project Structure
 
 ```
 go-to-bed/
 ├── src/
-│   ├── main.js         # Haupt-Electron-Prozess
-│   ├── config.js       # Konfigurations-Manager
-│   ├── settings.html   # Einstellungsfenster
-│   ├── settings.js     # Einstellungs-Logik
-│   ├── reminder.html   # Erinnerungsfenster
-│   ├── reminder.js     # Erinnerungs-Logik
-│   ├── stats.html      # Statistik-Fenster
-│   ├── stats.js        # Statistik-Logik
-│   └── styles.css      # Gemeinsame Styles
+│   ├── main.js         # Main Electron process
+│   ├── config.js       # Configuration manager
+│   ├── settings.html   # Settings window
+│   ├── settings.js     # Settings logic
+│   ├── reminder.html   # Reminder window
+│   ├── reminder.js     # Reminder logic
+│   ├── stats.html      # Statistics window
+│   ├── stats.js        # Statistics logic
+│   ├── styles.css      # Shared styles
+│   ├── titlebar.css    # Custom titlebar styles
+│   └── titlebar.js     # Titlebar functionality
 ├── assets/
-│   ├── tray-icon.svg   # Systemtray-Icon (SVG)
-│   └── tray-icon.png   # Systemtray-Icon (PNG, 16x16)
+│   ├── icon.ico        # Windows icon (multi-size)
+│   ├── tray-icon.png   # System tray icon (16x16)
+│   └── horse-sleeping-on-grass.png  # Source image
 ├── package.json
 └── README.md
 ```
 
-### Icons erstellen
+### Creating Icons
 
-Das SVG-Icon kann mit Tools wie Inkscape oder online SVG-zu-PNG-Konvertern in ein PNG umgewandelt werden:
+The icon.ico is created from the horse-sleeping-on-grass.png using ImageMagick:
 
-1. Öffne `assets/tray-icon.svg` in einem SVG-Editor
-2. Exportiere als PNG mit 16x16 Pixeln
-3. Speichere als `assets/tray-icon.png`
+```bash
+# Create square icon with multiple sizes
+convert assets/horse-sleeping-on-grass.png -gravity center -extent 500x500 -resize 256x256 assets/icon-256.png
+convert assets/horse-sleeping-on-grass.png -gravity center -extent 500x500 -resize 48x48 assets/icon-48.png
+convert assets/horse-sleeping-on-grass.png -gravity center -extent 500x500 -resize 32x32 assets/icon-32.png
+convert assets/horse-sleeping-on-grass.png -gravity center -extent 500x500 -resize 16x16 assets/icon-16.png
+convert assets/icon-16.png assets/icon-32.png assets/icon-48.png assets/icon-256.png assets/icon.ico
+```
 
-Für das Installer-Icon (`.ico`) kannst du Tools wie:
-- https://convertio.co/de/png-ico/
-- https://www.icoconverter.com/
+### Autostart Configuration
 
-verwenden, um aus dem PNG ein ICO zu erstellen.
+The application can be set to start automatically with Windows:
 
-### Autostart konfigurieren
+1. Press `Win + R`
+2. Enter: `shell:startup`
+3. Create a shortcut to the executable file in this folder
 
-Die Anwendung kann so eingestellt werden, dass sie beim Windows-Start automatisch startet:
+Or use the installer, which offers this option automatically.
 
-1. Drücke `Win + R`
-2. Gib ein: `shell:startup`
-3. Erstelle eine Verknüpfung zur ausführbaren Datei in diesem Ordner
+## 🔧 Technologies
 
-Oder verwende den Installer, der diese Option automatisch anbietet.
-
-## 🔧 Technologien
-
-- **Electron** - Desktop-App-Framework
-- **Node.js** - Backend-Logik
+- **Electron** - Desktop app framework
+- **Node.js** - Backend logic
 - **HTML/CSS/JavaScript** - Frontend
-- **electron-builder** - Installer-Erstellung
+- **electron-builder** - Installer creation
+- **NSIS** - Windows installer
 
-## 📝 Konfiguration
+## 📝 Configuration
 
-Die Konfigurationsdateien werden im Benutzerverzeichnis gespeichert:
+Configuration files are stored in the user directory:
 
 ```
 C:\Users\[Username]\AppData\Roaming\go-to-bed\
-├── config.json    # Einstellungen
-└── stats.json     # Statistiken
+├── config.json    # Settings
+└── stats.json     # Statistics
 ```
 
-## 🐛 Fehlerbehebung
+You can quickly access this folder via the system tray menu: **Show Data Folder**
 
-**Die Anwendung startet nicht:**
-- Stelle sicher, dass Node.js installiert ist
-- Führe `npm install` aus, um alle Dependencies zu installieren
+## 🐛 Troubleshooting
 
-**Das Tray-Icon wird nicht angezeigt:**
-- Erstelle das Icon aus der SVG-Vorlage (siehe "Icons erstellen")
-- Stelle sicher, dass `assets/tray-icon.png` existiert
+**Application doesn't start:**
+- Make sure Node.js is installed
+- Run `npm install` to install all dependencies
 
-**Erinnerungen funktionieren nicht:**
-- Überprüfe, ob die Erinnerungen aktiviert sind (Systemtray-Menü)
-- Stelle sicher, dass der aktuelle Wochentag aktiviert ist
-- Die App prüft jede Minute, ob es Zeit ist
+**Tray icon is not displayed:**
+- Make sure `assets/tray-icon.png` exists
+- Check if the icon is properly created
 
-## 📄 Lizenz
+**Reminders don't work:**
+- Check if reminders are enabled (system tray menu)
+- Make sure the current weekday is activated
+- The app checks every minute if it's time
 
-MIT License - siehe LICENSE-Datei
+**Settings are not saved:**
+- Open the system tray menu → "Show Data Folder"
+- Check if config.json exists
+- Look at the console for error messages (F12 in settings window)
 
-## 🤝 Beitragen
+## 📄 License
 
-Feedback und Beiträge sind willkommen! Öffne ein Issue oder Pull Request auf GitHub.
+MIT License - see LICENSE file
 
-## 🎉 Danke
+## 🤝 Contributing
 
-Danke, dass du Go-to-Bed verwendest! Schlafe gut! 😴🌙
+Feedback and contributions are welcome! Open an issue or pull request on GitHub.
+
+## 🎉 Thanks
+
+Thanks for using Go-to-Bed! Sleep well! 😴🌙
