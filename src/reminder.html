@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zeit ins Bett zu gehen!</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="titlebar.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: #f0f0f0;
+    }
+    .reminder-container {
+      text-align: center;
+      padding: 30px 20px;
+      height: calc(100vh - 31px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: #f0f0f0;
+      color: #000;
+    }
+    .reminder-icon {
+      font-size: 60px;
+      margin-bottom: 15px;
+    }
+    .reminder-title {
+      font-size: 24px;
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+    .reminder-message {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: #333;
+    }
+    .reminder-time {
+      font-size: 36px;
+      font-weight: 600;
+      margin-bottom: 30px;
+    }
+    .reminder-buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .reminder-btn {
+      padding: 7px 14px;
+      font-size: 14px;
+      font-family: 'Segoe UI', sans-serif;
+      border: 1px solid #ababab;
+      border-radius: 0;
+      cursor: pointer;
+      font-weight: 400;
+      transition: all 0.05s;
+      background-color: #f0f0f0;
+      color: #000;
+    }
+    .reminder-btn:hover {
+      background-color: #e1e1e1;
+      border-color: #7a7a7a;
+    }
+    .reminder-btn:active {
+      background-color: #d0d0d0;
+    }
+    .btn-go {
+      background-color: #0078d4;
+      color: white;
+      border-color: #0078d4;
+    }
+    .btn-go:hover {
+      background-color: #106ebe;
+      border-color: #106ebe;
+    }
+    .btn-go:active {
+      background-color: #005a9e;
+      border-color: #005a9e;
+    }
+  </style>
+</head>
+<body>
+  <div class="titlebar">
+    <div class="titlebar-title">Zeit ins Bett zu gehen!</div>
+    <div class="titlebar-controls">
+      <button class="titlebar-button titlebar-close" id="close-btn" title="Schließen">×</button>
+    </div>
+  </div>
+  
+  <div class="reminder-container">
+    <div class="reminder-icon">🌙</div>
+    <div class="reminder-title">Zeit ins Bett zu gehen!</div>
+    <div class="reminder-message">Es ist schon spät, du solltest jetzt schlafen gehen.</div>
+    <div class="reminder-time" id="currentTime"></div>
+    
+    <div class="reminder-buttons">
+      <button class="reminder-btn" onclick="snooze()">
+        Snooze (<span id="snoozeMinutes">10</span> Min)
+      </button>
+      <button class="reminder-btn btn-go" onclick="dismiss()">
+        Okay, ich gehe!
+      </button>
+    </div>
+  </div>
+
+  <script src="titlebar.js"></script>
+  <script src="reminder.js"></script>
+</body>
+</html>

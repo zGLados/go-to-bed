@@ -1,228 +1,169 @@
-# 🌙 Go-to-Bed
+# 🌙 Go-to-Bed v2.0
 
-A simple tool that reminds you to go to bed at a specific time!
+Eine moderne Windows-Anwendung mit Systemtray-Integration, die dich daran erinnert, rechtzeitig ins Bett zu gehen.
 
-**Windows Installer available!** - One-click installation with automatic autostart 🚀
+## ✨ Features
 
-**Now powered by PowerShell + WPF** - Native Windows, lightweight, instant updates!
+- 🖥️ **Systemtray-Integration** - Läuft im Hintergrund, immer bereit
+- ⏰ **Flexible Zeitplanung** - Stelle deine Schlafenszeit und aktive Wochentage ein
+- 😴 **Snooze-Funktion** - Verschiebe die Erinnerung um einige Minuten
+- 📊 **Statistiken** - Verfolge, wie oft du die Erinnerung befolgst
+- 🎨 **Moderne UI** - Schönes, intuitives Design
+- 🚀 **Autostart** - Automatisch beim Windows-Start (optional)
+- 💾 **Persistente Einstellungen** - Deine Konfiguration wird gespeichert
 
-## Features
+## 📦 Installation
 
-- 🕐 Configurable bedtime
-- 📅 **Weekday selection** - Choose which days the reminder appears
-- 🖥️ **WPF fullscreen banner** - Beautiful native Windows UI
-- 👤 Shows your username in the message
-- 🔄 Runs in the background as a service
-- 🚀 **Windows: One-click installer** - Automatic autostart and configuration
-- ⚡ **PowerShell-based** - Lightweight, no compilation needed
-- 📦 Easy installation and updates
+### Voraussetzungen
 
-## Installation
+- Node.js (Version 18 oder höher)
+- npm (kommt mit Node.js)
 
-### Windows (Recommended) 🎯
+### Schritt 1: Dependencies installieren
 
-**One-Click Installation:**
-
-1. Download `GoToBed-Setup.exe` from the [Releases](../../releases/latest)
-2. Double-click the downloaded file
-3. Follow the installation wizard:
-   - ⏰ **Set your bedtime** - Choose the hour and minute
-   - 📅 **Select active days** - Every day, weekdays, weekend, or custom
-   - ✅ **"Start automatically when Windows starts"** is recommended
-4. **Done!** The program is now running in the background
-
-**Installer Features:**
-- ✨ Automatic installation to `Program Files\Go-to-Bed`
-- 🚀 Optional autostart at Windows startup
-- ⚙️ Guided configuration **during** installation
-- 🗑️ Clean uninstallation via Windows Control Panel
-- 📋 Start menu integration
-
-**Change Configuration:**
-- Start Menu → "Go-to-Bed" → "Configuration"
-- Or run: `%ProgramFiles%\Go-to-Bed\configure.ps1`
-
----
-
-### Linux & macOS (Currently Unavailable)
-
-Development is currently focused on Windows. Linux and macOS versions are planned.
-
-**Note:** Earlier versions supported Linux. If you need Linux, check older releases or build from source.
-
-## Configuration
-
-### Bedtime and Weekdays
-
-During installation, you will be asked:
-1. **When** your bedtime should be (e.g., 22:00)
-2. **Which weekdays** the reminder should appear
-
-The configuration wizard offers these options:
-- **Every day** (Monday to Sunday) - for regular sleep schedules
-- **Weekdays** (Monday to Friday) - work days only
-- **Weekend** (Saturday and Sunday) - longer nights on weekends
-- **Custom** - select individual days
-
-### Manual Configuration
-
-The configuration file is located at:
-```
-%USERPROFILE%\.go-to-bed.conf
+```bash
+npm install
 ```
 
-It's in JSON format and can be edited directly:
+### Schritt 2: Anwendung starten (Entwicklungsmodus)
 
-```json
-{
-  "bedtime": "22:00",
-  "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri"]
-}
+```bash
+npm start
 ```
 
-**Weekday codes:**
-- `Mon` = Monday
-- `Tue` = Tuesday
-- `Wed` = Wednesday
-- `Thu` = Thursday
-- `Fri` = Friday
-- `Sat` = Saturday
-- `Sun` = Sunday
+### Schritt 3: Installer erstellen
 
-**Examples:**
-
-Weekend only, later bedtime:
-```json
-{
-  "bedtime": "01:00",
-  "weekdays": ["Sat", "Sun"]
-}
+```bash
+npm run build:win
 ```
 
-Weekdays only:
-```json
-{
-  "bedtime": "22:00",
-  "weekdays": ["Mon", "Tue", "Wed", "Thu", "Fri"]
-}
+Der Installer wird im Ordner `dist` erstellt.
+
+## 🎯 Verwendung
+
+### Erste Schritte
+
+1. Starte die Anwendung
+2. Das Systemtray-Icon erscheint in der Taskleiste
+3. Rechtsklick auf das Icon → "Einstellungen"
+4. Stelle deine Schlafenszeit und aktive Wochentage ein
+5. Klicke auf "Speichern"
+
+### Funktionen
+
+**Einstellungen:**
+- Aktiviere/Deaktiviere Erinnerungen
+- Stelle deine Schlafenszeit ein
+- Wähle aktive Wochentage (z.B. nur Wochentage)
+- Passe die Snooze-Dauer an (1-60 Minuten)
+
+**Erinnerung:**
+- Wenn die eingestellte Zeit erreicht ist, erscheint ein Erinnerungsfenster
+- **Snooze**: Verschiebe die Erinnerung um X Minuten
+- **Okay, ich gehe!**: Bestätige, dass du ins Bett gehst
+
+**Statistiken:**
+- Sieh, wie viele Erinnerungen du erhalten hast
+- Wie oft du die Erinnerung befolgt hast
+- Deine Erfolgsquote
+- Letzte Aktivitäten
+
+### Systemtray-Menü
+
+- **Schlafenszeit**: Zeigt deine aktuelle Schlafenszeit
+- **Aktiviert/Deaktiviert**: Schalte Erinnerungen ein/aus
+- **Einstellungen**: Öffne das Einstellungsfenster
+- **Statistiken**: Öffne die Statistik-Ansicht
+- **Test Erinnerung**: Teste die Erinnerung manuell
+- **Beenden**: Schließe die Anwendung
+
+## 🛠️ Entwicklung
+
+### Projektstruktur
+
+```
+go-to-bed/
+├── src/
+│   ├── main.js         # Haupt-Electron-Prozess
+│   ├── config.js       # Konfigurations-Manager
+│   ├── settings.html   # Einstellungsfenster
+│   ├── settings.js     # Einstellungs-Logik
+│   ├── reminder.html   # Erinnerungsfenster
+│   ├── reminder.js     # Erinnerungs-Logik
+│   ├── stats.html      # Statistik-Fenster
+│   ├── stats.js        # Statistik-Logik
+│   └── styles.css      # Gemeinsame Styles
+├── assets/
+│   ├── tray-icon.svg   # Systemtray-Icon (SVG)
+│   └── tray-icon.png   # Systemtray-Icon (PNG, 16x16)
+├── package.json
+└── README.md
 ```
 
-## Usage
+### Icons erstellen
 
-After the service is installed and configured, it runs automatically in the background.
+Das SVG-Icon kann mit Tools wie Inkscape oder online SVG-zu-PNG-Konvertern in ein PNG umgewandelt werden:
 
-At the configured bedtime **on the selected weekdays**, it will show:
-1. A system notification
-2. A large fullscreen banner with your username
+1. Öffne `assets/tray-icon.svg` in einem SVG-Editor
+2. Exportiere als PNG mit 16x16 Pixeln
+3. Speichere als `assets/tray-icon.png`
 
-The banner displays:
+Für das Installer-Icon (`.ico`) kannst du Tools wie:
+- https://convertio.co/de/png-ico/
+- https://www.icoconverter.com/
+
+verwenden, um aus dem PNG ein ICO zu erstellen.
+
+### Autostart konfigurieren
+
+Die Anwendung kann so eingestellt werden, dass sie beim Windows-Start automatisch startet:
+
+1. Drücke `Win + R`
+2. Gib ein: `shell:startup`
+3. Erstelle eine Verknüpfung zur ausführbaren Datei in diesem Ordner
+
+Oder verwende den Installer, der diese Option automatisch anbietet.
+
+## 🔧 Technologien
+
+- **Electron** - Desktop-App-Framework
+- **Node.js** - Backend-Logik
+- **HTML/CSS/JavaScript** - Frontend
+- **electron-builder** - Installer-Erstellung
+
+## 📝 Konfiguration
+
+Die Konfigurationsdateien werden im Benutzerverzeichnis gespeichert:
+
 ```
-🌙 [Your Name], it's time to go to bed! 🌙
-Good night! 😴
-```
-
-You can close the banner by clicking "OK, I'm going to bed now", or it will automatically disappear after 2 minutes.
-
-**Note:** On days not selected in your configuration, no reminder will appear.
-
-## Development
-
-### Prerequisites
-
-- **PowerShell 5.1+** (included in Windows 10/11)
-- **Inno Setup** (for building installer): https://jrsoftware.org/isinfo.php
-
-### Build from Source
-
-1. Clone repository:
-   ```bash
-   git clone https://github.com/zGLados/go-to-bed.git
-   cd go-to-bed
-   ```
-
-2. **Run directly** (no build needed!):
-   ```powershell
-   .\GoToBed.ps1
-   ```
-
-3. **Build installer** (optional):
-   ```bash
-   # Install Inno Setup: https://jrsoftware.org/isinfo.php
-   # Then:
-   "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
-   ```
-
-### Test Locally
-
-```powershell
-# Run with console output
-.\GoToBed.ps1
-
-# Run hidden (background mode)
-.\Start-GoToBed.vbs
+C:\Users\[Username]\AppData\Roaming\go-to-bed\
+├── config.json    # Einstellungen
+└── stats.json     # Statistiken
 ```
 
-### Project Structure
+## 🐛 Fehlerbehebung
 
-- `GoToBed.ps1` - Main program (background service)
-- `Show-Banner.ps1` - WPF fullscreen banner
-- `Start-GoToBed.vbs` - Silent launcher (hides console)
-- `configure.ps1` - Configuration wizard
-- `installer.iss` - Inno Setup installer script
+**Die Anwendung startet nicht:**
+- Stelle sicher, dass Node.js installiert ist
+- Führe `npm install` aus, um alle Dependencies zu installieren
 
-## GitHub Actions
+**Das Tray-Icon wird nicht angezeigt:**
+- Erstelle das Icon aus der SVG-Vorlage (siehe "Icons erstellen")
+- Stelle sicher, dass `assets/tray-icon.png` existiert
 
-This project uses GitHub Actions for automated installer builds:
+**Erinnerungen funktionieren nicht:**
+- Überprüfe, ob die Erinnerungen aktiviert sind (Systemtray-Menü)
+- Stelle sicher, dass der aktuelle Wochentag aktiviert ist
+- Die App prüft jede Minute, ob es Zeit ist
 
-- Every tag push (e.g., `v2.0.0`) automatically creates a Windows installer
-- **No compilation needed** - PowerShell scripts are packaged directly
-- **Fast builds** - Typically completes in ~30 seconds
-- The installer is published as a release asset
-- Anyone can download the latest version easily
+## 📄 Lizenz
 
-### Create a Release
+MIT License - siehe LICENSE-Datei
 
-1. Create and push a tag:
-   ```bash
-   git tag v2.0.0
-   git push origin v2.0.0
-   ```
+## 🤝 Beitragen
 
-2. GitHub Actions automatically builds the installer (~30 seconds)
-3. A new release is created with `GoToBed-Setup.exe`
+Feedback und Beiträge sind willkommen! Öffne ein Issue oder Pull Request auf GitHub.
 
-## License
+## 🎉 Danke
 
-MIT License - see LICENSE file for details.
-
-## Contributing
-
-Pull requests are welcome! For major changes, please open an issue first.
-
-## Known Issues
-
-- **First run:** Windows Defender SmartScreen might show a warning (click "More info" → "Run anyway")
-- **Configuration:** PowerShell Execution Policy must allow scripts (automatically bypassed with `-ExecutionPolicy Bypass`)
-
-## Roadmap
-
-- [x] **Windows Installer (.exe)** - One-click installation ✅
-- [x] **Installer configuration wizard** - Time and day selection during setup ✅
-- [x] **PowerShell rewrite** - Native Windows, no compilation needed ✅
-- [x] **WPF UI** - Beautiful native fullscreen banner ✅
-- [ ] **Linux .deb/.rpm packages** - System package manager integration
-- [ ] **macOS App Bundle (.app)** - Installable app with setup script
-- [ ] System tray icon for Windows
-- [ ] Multiple reminder times per day
-- [ ] Snooze function
-- [ ] Customizable messages
-- [ ] GUI for configuration
-- [x] Weekday selection ✅
-
-## Support
-
-For issues or questions, please open an issue on GitHub.
-
----
-
-Good night! 🌙💤
+Danke, dass du Go-to-Bed verwendest! Schlafe gut! 😴🌙

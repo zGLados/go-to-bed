@@ -1,0 +1,62 @@
+{
+  "name": "go-to-bed",
+  "version": "2.0.0",
+  "description": "A bedtime reminder app with systemtray integration",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "dist": "electron-builder"
+  },
+  "keywords": [
+    "bedtime",
+    "reminder",
+    "systemtray",
+    "electron"
+  ],
+  "author": "Fritz",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.go-to-bed.app",
+    "productName": "Go-to-Bed",
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico",
+      "sign": null,
+      "verifyUpdateCodeSignature": false
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Go-to-Bed",
+      "runAfterFinish": true,
+      "perMachine": false,
+      "allowElevation": true
+    },
+    "files": [
+      "src/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "extraMetadata": {
+      "main": "src/main.js"
+    }
+  }
+}

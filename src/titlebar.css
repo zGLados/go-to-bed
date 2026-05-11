@@ -1,0 +1,77 @@
+/* Windows-Style Custom Titlebar */
+.titlebar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 31px;
+  background-color: #ffffff;
+  border-bottom: 1px solid #ababab;
+  -webkit-app-region: drag;
+  user-select: none;
+}
+
+.titlebar-title {
+  flex: 1;
+  padding-left: 8px;
+  font-size: 12px;
+  font-family: 'Segoe UI', sans-serif;
+  color: #000000;
+  font-weight: 400;
+}
+
+.titlebar-controls {
+  display: flex;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.titlebar-button {
+  width: 45px;
+  height: 31px;
+  border: none;
+  background-color: transparent;
+  color: #000000;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: background-color 0.05s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  outline: none;
+}
+
+.titlebar-button:hover {
+  background-color: #e5e5e5;
+}
+
+.titlebar-button:active {
+  background-color: #cccccc;
+}
+
+.titlebar-close {
+  width: 45px;
+}
+
+.titlebar-close:hover {
+  background-color: #e81123 !important;
+  color: #ffffff !important;
+}
+
+.titlebar-close:active {
+  background-color: #f1707a !important;
+  color: #ffffff !important;
+}
+
+/* Content area with titlebar */
+.window-content {
+  height: calc(100vh - 31px);
+  overflow-y: auto;
+}
+
+.window-content .container {
+  min-height: auto;
+}

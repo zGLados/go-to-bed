@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistiken</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="titlebar.css">
+</head>
+<body>
+  <div class="titlebar">
+    <div class="titlebar-title">Go-to-Bed Statistiken</div>
+    <div class="titlebar-controls">
+      <button class="titlebar-button" id="minimize-btn" title="Minimieren">−</button>
+      <button class="titlebar-button titlebar-close" id="close-btn" title="Schließen">×</button>
+    </div>
+  </div>
+  
+  <div class="window-content">
+  <div class="container">
+    <h1>Statistiken</h1>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="totalReminders">0</div>
+        <div class="stat-label">Erinnerungen gesamt</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-number" id="dismissed">0</div>
+        <div class="stat-label">Befolgt ✓</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-number" id="snoozed">0</div>
+        <div class="stat-label">Gesnoozed ⏰</div>
+      </div>
+      
+      <div class="stat-card">
+        <div class="stat-number" id="complianceRate">0%</div>
+        <div class="stat-label">Erfolgsquote</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Letzte Aktivitäten</h2>
+      <div class="history-list" id="historyList">
+        <div class="empty-state">Noch keine Aktivitäten vorhanden</div>
+      </div>
+    </div>
+
+    <div class="button-group">
+      <button class="btn btn-secondary" onclick="window.close()">Schließen</button>
+    </div>
+  </div>
+  </div>
+
+  <script src="titlebar.js"></script>
+  <script src="stats.js"></script>
+</body>
+</html>
