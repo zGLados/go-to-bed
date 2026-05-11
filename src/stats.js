@@ -31,8 +31,8 @@ async function loadStats() {
         const icon = entry.action === 'dismissed' ? '✓' : 
                      entry.action === 'snoozed' ? '⏰' : '📌';
         
-        const actionText = entry.action === 'dismissed' ? 'Befolgt' :
-                           entry.action === 'snoozed' ? 'Gesnoozed' : 'Angezeigt';
+        const actionText = entry.action === 'dismissed' ? 'Complied' :
+                           entry.action === 'snoozed' ? 'Snoozed' : 'Shown';
         
         historyItem.innerHTML = `
           <span class="history-icon">${icon}</span>
@@ -44,7 +44,7 @@ async function loadStats() {
         historyList.appendChild(historyItem);
       });
     } else {
-      historyList.innerHTML = '<div class="empty-state">Noch keine Aktivitäten vorhanden</div>';
+      historyList.innerHTML = '<div class="empty-state">No activity yet</div>';
     }
   } catch (error) {
     console.error('Error loading stats:', error);

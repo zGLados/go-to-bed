@@ -15,7 +15,7 @@
     "systemtray",
     "electron"
   ],
-  "author": "Fritz",
+  "author": "zGLados",
   "license": "MIT",
   "devDependencies": {
     "electron": "^28.0.0",
@@ -44,7 +44,7 @@
       "createStartMenuShortcut": true,
       "shortcutName": "Go-to-Bed",
       "runAfterFinish": true,
-      "perMachine": false,
+      "perMachine": true,
       "allowElevation": true
     },
     "files": [

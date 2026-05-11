@@ -67,12 +67,12 @@ function updateTrayMenu() {
   
   const contextMenu = Menu.buildFromTemplate([
     {
-      label: `Schlafenszeit: ${bedtime}`,
+      label: `Bedtime: ${bedtime}`,
       enabled: false
     },
     { type: 'separator' },
     {
-      label: isEnabled ? '✓ Aktiviert' : '✗ Deaktiviert',
+      label: isEnabled ? '✓ Enabled' : '✗ Disabled',
       type: 'checkbox',
       checked: isEnabled,
       click: () => {
@@ -87,21 +87,29 @@ function updateTrayMenu() {
     },
     { type: 'separator' },
     {
-      label: 'Einstellungen',
+      label: 'Settings',
       click: createSettingsWindow
     },
     {
-      label: 'Statistiken',
+      label: 'Statistics',
       click: createStatsWindow
     },
     { type: 'separator' },
     {
-      label: 'Test Erinnerung',
+      label: 'Show Data Folder',
+      click: () => {
+        const { shell } = require('electron');
+        const userDataPath = require('electron').app.getPath('userData');
+        shell.openPath(userDataPath);
+      }
+    },
+    {
+      label: 'Test Reminder',
       click: () => showReminder(false)
     },
     { type: 'separator' },
     {
-      label: 'Beenden',
+      label: 'Quit',
       click: () => {
         app.isQuitting = true;
         app.quit();
@@ -121,7 +129,7 @@ function createSettingsWindow() {
   settingsWindow = new BrowserWindow({
     width: 500,
     height: 600,
-    title: 'Go-to-Bed Einstellungen',
+    title: 'Go-to-Bed Settings',
     resizable: false,
     frame: false,
     backgroundColor: '#f0f0f0',
@@ -147,7 +155,7 @@ function createStatsWindow() {
   statsWindow = new BrowserWindow({
     width: 600,
     height: 500,
-    title: 'Go-to-Bed Statistiken',
+    title: 'Go-to-Bed Statistics',
     resizable: false,
     frame: false,
     backgroundColor: '#f0f0f0',
@@ -173,7 +181,7 @@ function showReminder(isActual = true) {
   reminderWindow = new BrowserWindow({
     width: 500,
     height: 300,
-    title: 'Zeit ins Bett zu gehen!',
+    title: 'Time to go to bed!',
     resizable: false,
     frame: false,
     alwaysOnTop: true,
@@ -330,9 +338,14 @@ app.whenReady().then(() => {
   }
 
   // Show settings on first run
-  const isFirstRun = !config.configPath || !require('fs').existsSync(config.configPath);
+  const fs = require('fs');
+  const isFirstRun = !fs.existsSync(config.configPath);
+  console.log('First run check:', isFirstRun);
   if (isFirstRun) {
+    console.log('First run detected - opening settings window');
     createSettingsWindow();
+  } else {
+    console.log('Config file exists, app running in background');
   }
 });
 

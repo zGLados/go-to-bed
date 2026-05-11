@@ -3,9 +3,10 @@ const { ipcRenderer } = require('electron');
 // Update current time
 function updateTime() {
   const now = new Date();
-  const timeString = now.toLocaleTimeString('de-DE', { 
+  const timeString = now.toLocaleTimeString('en-US', { 
     hour: '2-digit', 
-    minute: '2-digit' 
+    minute: '2-digit',
+    hour12: false
   });
   document.getElementById('currentTime').textContent = timeString;
 }

@@ -17,12 +17,18 @@ async function loadSettings() {
       cb.checked = currentConfig.weekdays.includes(parseInt(cb.value));
     });
   } catch (error) {
-    showMessage('Fehler beim Laden der Einstellungen: ' + error.message, 'error');
+    showMessage('Error loading settings: ' + error.message, 'error');
   }
 }
 
 async function saveSettings() {
   try {
+    // Disable save button during save
+    const saveBtn = document.querySelector('.btn-primary');
+    const originalText = saveBtn.textContent;
+    saveBtn.disabled = true;
+    saveBtn.textContent = '💾 Saving...';
+    
     const enabled = document.getElementById('enabled').checked;
     const autostart = document.getElementById('autostart').checked;
     const bedtime = document.getElementById('bedtime').value;
@@ -35,7 +41,9 @@ async function saveSettings() {
     });
 
     if (weekdays.length === 0) {
-      showMessage('Bitte wähle mindestens einen Wochentag aus!', 'error');
+      showMessage('⚠️ Please select at least one weekday!', 'error');
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalText;
       return;
     }
 
@@ -50,15 +58,20 @@ async function saveSettings() {
     const success = await ipcRenderer.invoke('save-config', newConfig);
     
     if (success) {
-      showMessage('✓ Einstellungen gespeichert!', 'success');
+      showMessage('✓ Settings saved successfully!', 'success');
       setTimeout(() => {
         window.close();
-      }, 1000);
+      }, 1500);
     } else {
-      showMessage('Fehler beim Speichern der Einstellungen', 'error');
+      showMessage('❌ Error saving settings. Please try again.', 'error');
+      saveBtn.disabled = false;
+      saveBtn.textContent = originalText;
     }
   } catch (error) {
-    showMessage('Fehler: ' + error.message, 'error');
+    showMessage('Error: ' + error.message, 'error');
+    const saveBtn = document.querySelector('.btn-primary');
+    saveBtn.disabled = false;
+    saveBtn.textContent = '💾 Save';
   }
 }
 
@@ -67,6 +80,9 @@ function selectWeekdays(days) {
   checkboxes.forEach(cb => {
     cb.checked = days.includes(parseInt(cb.value));
   });
+  
+  // Visual feedback
+  showMessage(`📅 ${days.length === 7 ? 'All days' : days.length === 5 ? 'Weekdays' : 'Weekend'} selected`, 'success');
 }
 
 function showMessage(text, type = 'info') {
@@ -75,10 +91,16 @@ function showMessage(text, type = 'info') {
   messageDiv.className = 'message ' + type;
   messageDiv.style.display = 'block';
   
+  // Auto-hide after 3 seconds for success, keep error visible longer
+  const hideDelay = type === 'success' ? 2000 : 5000;
   setTimeout(() => {
     messageDiv.style.display = 'none';
-  }, 3000);
+  }, hideDelay);
 }
 
 // Load settings when page loads
 window.addEventListener('DOMContentLoaded', loadSettings);
+
+// Make functions globally accessible for onclick handlers
+window.selectWeekdays = selectWeekdays;
+window.saveSettings = saveSettings;

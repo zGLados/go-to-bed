@@ -236,6 +236,13 @@ h2 {
   border-color: #005a9e;
 }
 
+.btn-primary:disabled {
+  background-color: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 .btn-secondary {
   background-color: #f0f0f0;
   color: #000;
@@ -250,27 +257,45 @@ h2 {
   background-color: #d0d0d0;
 }
 
+.btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 /* Message */
 .message {
   margin-top: 15px;
-  padding: 10px;
-  border-radius: 0;
+  padding: 12px;
+  border-radius: 2px;
   text-align: center;
-  font-weight: 400;
+  font-weight: 600;
   display: none;
-  border: 1px solid;
+  border: 2px solid;
+  font-size: 14px;
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .message.success {
   background-color: #dff6dd;
   color: #107c10;
-  border: 1px solid #107c10;
+  border-color: #107c10;
 }
 
 .message.error {
   background-color: #fde7e9;
   color: #a80000;
-  border: 1px solid #a80000;
+  border-color: #a80000;
 }
 
 /* Stats */
