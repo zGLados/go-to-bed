@@ -3,6 +3,27 @@ import PyInstaller.__main__
 import sys
 from pathlib import Path
 
+# Check if running on Windows
+if sys.platform != 'win32':
+    print("=" * 70)
+    print("⚠️  WARNING: You are NOT running on Windows!")
+    print("=" * 70)
+    print(f"Current platform: {sys.platform}")
+    print("")
+    print("This will create a {}-executable, NOT a Windows .exe!".format(
+        "Linux" if sys.platform.startswith('linux') else 
+        "macOS" if sys.platform == 'darwin' else sys.platform
+    ))
+    print("")
+    print("To create a Windows .exe, you MUST run this on Windows.")
+    print("=" * 70)
+    
+    response = input("\nDo you want to continue anyway? (yes/no): ")
+    if response.lower() not in ['yes', 'y']:
+        print("Build cancelled.")
+        sys.exit(0)
+    print("")
+
 # Get the directory of this script
 script_dir = Path(__file__).parent
 src_dir = script_dir / 'src'
@@ -46,5 +67,16 @@ PyInstaller.__main__.run(args)
 
 print("=" * 60)
 print("✓ Build complete!")
-print(f"Executable: {script_dir / 'dist' / 'GotoBed.exe'}")
+
+if sys.platform == 'win32':
+    exe_path = script_dir / 'dist' / 'GotoBed.exe'
+    print(f"✓ Windows Executable: {exe_path}")
+    print("✓ Ready to distribute on Windows!")
+else:
+    exe_name = 'GotoBed.exe' if sys.platform == 'win32' else 'GotoBed'
+    exe_path = script_dir / 'dist' / exe_name
+    print(f"⚠️  {sys.platform} executable: {exe_path}")
+    print("⚠️  This will NOT run on Windows!")
+    print("⚠️  To create Windows .exe, build on Windows!")
+
 print("=" * 60)
