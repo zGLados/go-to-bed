@@ -1,5 +1,32 @@
-node_modules/
+# Build outputs
 dist/
-*.log
+build/
+*.spec
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.venv/
+venv/
+ENV/
+env/
+
+# OS
 .DS_Store
 Thumbs.db
+*.log
+
+# Old Node/Electron files (legacy)
+node_modules/
+package-lock.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
