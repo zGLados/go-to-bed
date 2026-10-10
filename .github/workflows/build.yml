@@ -1,0 +1,76 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Test & build GotoBed.exe
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Check version matches tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          $version = python -c "import sys; sys.path.insert(0, 'src'); from version import __version__; print(__version__)"
+          if ("v$version" -ne "${{ github.ref_name }}") {
+            Write-Error "src/version.py says $version but tag is ${{ github.ref_name }}"
+            exit 1
+          }
+
+      - name: Run tests
+        run: python -m pytest -v
+
+      - name: Self-test from source
+        env:
+          GOTOBED_DATA_DIR: ${{ runner.temp }}\gotobed-src
+        run: python src/main.py --self-test
+
+      - name: Build executable
+        run: python build.py
+
+      - name: Self-test executable
+        shell: pwsh
+        env:
+          GOTOBED_DATA_DIR: ${{ runner.temp }}\gotobed-exe
+        run: |
+          $p = Start-Process -FilePath dist\GotoBed.exe -ArgumentList '--self-test' -Wait -PassThru
+          Get-Content "$env:GOTOBED_DATA_DIR\gotobed.log" -ErrorAction SilentlyContinue
+          if ($p.ExitCode -ne 0) { Write-Error "Self-test failed with exit code $($p.ExitCode)"; exit 1 }
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: GotoBed-windows
+          path: dist/GotoBed.exe
+          if-no-files-found: error
+
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/GotoBed.exe
+          generate_release_notes: true

@@ -1,82 +1,47 @@
-"""Build script for creating executable."""
-import PyInstaller.__main__
+"""Build GotoBed.exe with PyInstaller.
+
+Usage: python build.py
+Run on Windows (or let GitHub Actions do it) to get a Windows .exe;
+PyInstaller always builds for the OS it runs on.
+"""
+import os
 import sys
 from pathlib import Path
 
-# Check if running on Windows
-if sys.platform != 'win32':
-    print("=" * 70)
-    print("⚠️  WARNING: You are NOT running on Windows!")
-    print("=" * 70)
-    print(f"Current platform: {sys.platform}")
-    print("")
-    print("This will create a {}-executable, NOT a Windows .exe!".format(
-        "Linux" if sys.platform.startswith('linux') else 
-        "macOS" if sys.platform == 'darwin' else sys.platform
-    ))
-    print("")
-    print("To create a Windows .exe, you MUST run this on Windows.")
-    print("=" * 70)
-    
-    response = input("\nDo you want to continue anyway? (yes/no): ")
-    if response.lower() not in ['yes', 'y']:
-        print("Build cancelled.")
-        sys.exit(0)
-    print("")
+import PyInstaller.__main__
 
-# Get the directory of this script
-script_dir = Path(__file__).parent
-src_dir = script_dir / 'src'
-icon_path = script_dir / 'assets' / 'icon.ico'
+ROOT = Path(__file__).resolve().parent
+SRC = ROOT / 'src'
+ASSETS = ROOT / 'assets'
+NAME = 'GotoBed'
 
-# PyInstaller arguments
-args = [
-    str(src_dir / 'main.py'),  # Main script
-    '--name=GotoBed',  # Name of executable
-    '--onefile',  # Create single executable
-    '--windowed',  # No console window
-    '--clean',  # Clean cache
-    f'--distpath={script_dir / "dist"}',  # Output directory
-    f'--workpath={script_dir / "build"}',  # Work directory
-    f'--specpath={script_dir}',  # Spec file directory
-]
 
-# Add icon if it exists
-if icon_path.exists():
-    args.append(f'--icon={icon_path}')
-else:
-    print(f"Warning: Icon not found at {icon_path}")
+def main() -> None:
+    if sys.platform != 'win32':
+        print(f"WARNING: building on {sys.platform} creates a {sys.platform} executable, NOT a Windows .exe.")
 
-# Additional options for better compatibility
-args.extend([
-    '--add-data=src:src',  # Include source for reference
-    '--hidden-import=PIL._tkinter_finder',  # Fix PIL/tkinter issues
-])
+    PyInstaller.__main__.run([
+        str(SRC / 'main.py'),
+        f'--name={NAME}',
+        '--onefile',
+        '--windowed',
+        '--noconfirm',
+        '--clean',
+        f'--paths={SRC}',
+        f'--icon={ASSETS / "icon.ico"}',
+        f'--add-data={ASSETS}{os.pathsep}assets',
+        '--hidden-import=pystray._win32',
+        '--hidden-import=PIL._tkinter_finder',
+        f'--distpath={ROOT / "dist"}',
+        f'--workpath={ROOT / "build"}',
+        f'--specpath={ROOT / "build"}',
+    ])
 
-print("=" * 60)
-print("Building Go-to-Bed executable...")
-print("=" * 60)
-print(f"Source: {src_dir}")
-print(f"Output: {script_dir / 'dist'}")
-if icon_path.exists():
-    print(f"Icon: {icon_path}")
-print("=" * 60)
+    exe = ROOT / 'dist' / (NAME + ('.exe' if sys.platform == 'win32' else ''))
+    if not exe.exists():
+        sys.exit(f"Build failed: {exe} not found")
+    print(f"Build complete: {exe} ({exe.stat().st_size / 1e6:.1f} MB)")
 
-# Run PyInstaller
-PyInstaller.__main__.run(args)
 
-print("=" * 60)
-print("✓ Build complete!")
-
-if sys.platform == 'win32':
-    exe_path = script_dir / 'dist' / 'GotoBed.exe'
-    print(f"✓ Windows Executable: {exe_path}")
-    print("✓ Ready to distribute on Windows!")
-else:
-    exe_name = 'GotoBed.exe' if sys.platform == 'win32' else 'GotoBed'
-    exe_path = script_dir / 'dist' / exe_name
-    print(f"⚠️  {sys.platform} executable: {exe_path}")
-    print("⚠️  This will NOT run on Windows!")
-    print("⚠️  To create Windows .exe, build on Windows!")
-
-print("=" * 60)
+if __name__ == '__main__':
+    main()

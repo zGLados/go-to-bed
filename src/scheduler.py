@@ -1,16 +1,27 @@
 """Bedtime scheduler for Go-to-Bed app."""
+import logging
 import threading
-import time
-from datetime import datetime
-from typing import Callable
+from datetime import datetime, timedelta
+from typing import Callable, Optional
+
+log = logging.getLogger(__name__)
 
 
 class BedtimeScheduler:
-    """Schedules and checks for bedtime."""
-    
-    def __init__(self, config, on_bedtime: Callable, on_prewarning: Callable = None):
+    """Checks periodically whether a pre-warning or the bedtime reminder is due.
+
+    The configuration is read on every check, so settings changes take effect
+    without restarting the scheduler. A reminder that was missed by up to
+    GRACE (e.g. because the PC was asleep) is still shown, but each reminder
+    fires at most once per night.
+    """
+
+    CHECK_INTERVAL = 10  # seconds
+    GRACE = timedelta(minutes=5)
+
+    def __init__(self, config, on_bedtime: Callable, on_prewarning: Optional[Callable] = None):
         """Initialize scheduler.
-        
+
         Args:
             config: Configuration manager
             on_bedtime: Callback when bedtime is reached
@@ -19,100 +30,65 @@ class BedtimeScheduler:
         self.config = config
         self.on_bedtime = on_bedtime
         self.on_prewarning = on_prewarning
-        self.running = False
+        self._fired = set()
+        self._stop_event = threading.Event()
         self.thread = None
-        self._last_check_minute = None
-        self._prewarning_shown = False
-        self._bedtime_shown = False
-    
+
     def start(self):
         """Start the scheduler."""
-        if self.running:
+        if self.thread and self.thread.is_alive():
             return
-        
-        self.running = True
-        self.thread = threading.Thread(target=self._run_loop, daemon=True)
+        self._stop_event.clear()
+        self.thread = threading.Thread(target=self._run_loop, name='scheduler', daemon=True)
         self.thread.start()
-        print("✓ Scheduler started")
-    
+        log.info("Scheduler started")
+
     def stop(self):
         """Stop the scheduler."""
-        self.running = False
+        self._stop_event.set()
         if self.thread:
             self.thread.join(timeout=2)
-        print("✓ Scheduler stopped")
-    
+        log.info("Scheduler stopped")
+
     def _run_loop(self):
         """Main scheduler loop."""
-        while self.running:
+        while not self._stop_event.is_set():
             try:
-                self._check_time()
-                time.sleep(10)  # Check every 10 seconds
-            except Exception as e:
-                print(f"Error in scheduler: {e}")
-                time.sleep(60)
-    
-    def _check_time(self):
-        """Check if it's time for a reminder."""
+                self.check()
+            except Exception:
+                log.exception("Error in scheduler")
+            self._stop_event.wait(self.CHECK_INTERVAL)
+
+    def check(self, now: Optional[datetime] = None):
+        """Fire due reminders. `now` can be passed in for testing."""
         if not self.config.get('enabled'):
             return
-        
-        now = datetime.now()
-        current_minute = now.strftime('%H:%M')
-        current_weekday = now.isoweekday()  # 1=Monday, 7=Sunday
-        
-        # Reset daily flags if we're past bedtime
-        bedtime = self.config.get('bedtime')
-        if current_minute < bedtime:
-            self._prewarning_shown = False
-            self._bedtime_shown = False
-        
-        # Only check once per minute
-        if self._last_check_minute == current_minute:
-            return
-        
-        self._last_check_minute = current_minute
-        
-        # Check if today is an active day
+        now = now or datetime.now()
+
+        hours, minutes = map(int, self.config.get('bedtime').split(':'))
         active_days = self.config.get('weekdays', [])
-        if current_weekday not in active_days:
-            return
-        
-        # Check for pre-warning
-        pre_warning_minutes = self.config.get('pre_warning_minutes', 0)
-        if pre_warning_minutes > 0 and self.on_prewarning and not self._prewarning_shown:
-            prewarning_time = self._subtract_minutes(bedtime, pre_warning_minutes)
-            if current_minute == prewarning_time:
-                print(f"⏰ Pre-warning time: {current_minute}")
-                self._prewarning_shown = True
-                self.on_prewarning()
-                return
-        
-        # Check for bedtime
-        if current_minute == bedtime and not self._bedtime_shown:
-            print(f"😴 Bedtime: {current_minute}")
-            self._bedtime_shown = True
-            self.on_bedtime()
-    
-    @staticmethod
-    def _subtract_minutes(time_str: str, minutes: int) -> str:
-        """Subtract minutes from a time string.
-        
-        Args:
-            time_str: Time in HH:MM format
-            minutes: Minutes to subtract
-            
-        Returns:
-            New time in HH:MM format
-        """
-        hours, mins = map(int, time_str.split(':'))
-        total_minutes = hours * 60 + mins - minutes
-        
-        # Handle negative wraparound
-        if total_minutes < 0:
-            total_minutes += 24 * 60
-        
-        new_hours = (total_minutes // 60) % 24
-        new_mins = total_minutes % 60
-        
-        return f'{new_hours:02d}:{new_mins:02d}'
+        pre_warning = int(self.config.get('pre_warning_minutes', 0))
+
+        events = [('bedtime', 0, self.on_bedtime)]
+        if pre_warning > 0 and self.on_prewarning:
+            events.insert(0, ('prewarning', pre_warning, self.on_prewarning))
+
+        # Look at today's and tomorrow's bedtime, so a pre-warning before a
+        # bedtime shortly after midnight is handled correctly.
+        today = now.replace(hour=hours, minute=minutes, second=0, microsecond=0)
+        for bedtime in (today, today + timedelta(days=1)):
+            if bedtime.isoweekday() not in active_days:
+                continue
+            for name, minutes_before, callback in events:
+                due = bedtime - timedelta(minutes=minutes_before)
+                # A pre-warning is pointless once bedtime has arrived
+                end = min(due + self.GRACE, bedtime) if minutes_before else due + self.GRACE
+                key = (name, bedtime.date())
+                if due <= now < end and key not in self._fired:
+                    self._fired.add(key)
+                    log.info("%s due (bedtime %s)", name, bedtime)
+                    callback()
+
+        # Forget old entries
+        cutoff = now.date() - timedelta(days=2)
+        self._fired = {k for k in self._fired if k[1] >= cutoff}
