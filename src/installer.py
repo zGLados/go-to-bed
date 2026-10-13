@@ -248,7 +248,9 @@ def _powershell(script: str, wait: bool = True, **env: str) -> None:
         subprocess.run(args, env=full_env, creationflags=CREATE_NO_WINDOW, timeout=60, check=True,
                        stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     else:
-        subprocess.Popen(args, env=full_env, creationflags=CREATE_NO_WINDOW | subprocess.DETACHED_PROCESS,
+        # Not DETACHED_PROCESS: PowerShell without a console exits at once and does nothing.
+        # CREATE_NO_WINDOW gives it its own hidden console, so it outlives this process.
+        subprocess.Popen(args, env=full_env, creationflags=CREATE_NO_WINDOW | subprocess.CREATE_NEW_PROCESS_GROUP,
                          stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
 
