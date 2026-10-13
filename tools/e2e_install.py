@@ -81,6 +81,17 @@ def main() -> None:
     def log_text() -> str:
         return log_file.read_text(encoding='utf-8', errors='replace') if log_file.exists() else ''
 
+    def fail(message: str) -> None:
+        print(log_text())
+        if WINDOWS:
+            import winreg
+            try:
+                with winreg.OpenKey(winreg.HKEY_CURRENT_USER, RUN_KEY) as key:
+                    print('Run values:', [winreg.EnumValue(key, i) for i in range(winreg.QueryInfoKey(key)[1])])
+            except OSError as e:
+                print('Run key:', e)
+        sys.exit(f'FAIL: {message}')
+
     try:
         # 1. Start the downloaded exe: it installs itself and starts the installed copy
         result = subprocess.run([str(downloaded)], timeout=180)
@@ -89,12 +100,12 @@ def main() -> None:
             sys.exit(f'FAIL: first start exited with {result.returncode}')
         wait_for(lambda: 'Started from install folder' in log_text(), 90, 'installed copy to start')
         if not installed.exists():
-            sys.exit('FAIL: exe not installed')
+            fail('exe not installed')
         if WINDOWS:
             wait_for(lambda: registry_has(UNINSTALL_KEY) and shortcut().exists(), 60,
                      'shortcut and Apps & features entry')
             if not registry_has(RUN_KEY, 'GotoBed'):
-                sys.exit('FAIL: autostart entry missing')
+                fail('autostart entry missing')
         print('install OK')
 
         # 2. Uninstall quietly while the installed copy is running
@@ -106,9 +117,9 @@ def main() -> None:
         if WINDOWS:
             wait_for(lambda: not app_running(), 30, 'running app to quit')
             if registry_has(UNINSTALL_KEY) or registry_has(RUN_KEY, 'GotoBed') or shortcut().exists():
-                sys.exit('FAIL: registry entries or shortcut left behind')
+                fail('registry entries or shortcut left behind')
         if not (data / 'config.json').exists():
-            sys.exit('FAIL: --quiet must keep the data folder')
+            fail('--quiet must keep the data folder')
         print(log_text())
         print('PASS: installed, registered, uninstalled; data kept')
     finally:
