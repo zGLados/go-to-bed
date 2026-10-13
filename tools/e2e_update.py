@@ -79,7 +79,7 @@ def main() -> None:
     os.environ.update({
         'GOTOBED_UPDATE_URL': f'{base}/latest.json',
         'GOTOBED_DATA_DIR': str(data),
-        'GOTOBED_UPDATE_ANY_PLATFORM': '1',
+        'GOTOBED_ANY_PLATFORM': '1',
     })
     log_file = data / 'gotobed.log'
     old_leftover = installed.with_name(installed.stem + '.old.exe')

@@ -1,9 +1,10 @@
 """Settings window for Go-to-Bed app."""
 import tkinter as tk
 from tkinter import ttk, messagebox
-from typing import Callable, Dict, Any
+from typing import Callable, Dict, Any, Optional
 
 from ui import center_window, set_window_icon, FONT
+from version import __version__
 
 
 class SettingsWindow:
@@ -11,16 +12,19 @@ class SettingsWindow:
 
     WEEKDAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
 
-    def __init__(self, master: tk.Tk, config_data: Dict[str, Any], on_save: Callable[[Dict[str, Any]], bool]):
+    def __init__(self, master: tk.Tk, config_data: Dict[str, Any], on_save: Callable[[Dict[str, Any]], bool],
+                 on_check_updates: Optional[Callable[[], None]] = None):
         """Initialize settings window.
 
         Args:
             master: Hidden Tk root
             config_data: Current configuration
             on_save: Callback function to save config, returns success
+            on_check_updates: Callback for the "Check for Updates" button
         """
         self.config = config_data
         self.on_save = on_save
+        self.on_check_updates = on_check_updates
         self.window = tk.Toplevel(master)
         self._build()
 
@@ -128,12 +132,24 @@ class SettingsWindow:
             variable=self.sound_var
         ).pack(anchor=tk.W)
 
+        # Updates
+        update_frame = ttk.LabelFrame(container, text='Updates', padding=12)
+        update_frame.pack(fill=tk.X, pady=(0, 10))
         self.auto_update_var = tk.BooleanVar(value=self.config.get('auto_update', True))
         ttk.Checkbutton(
-            options_frame,
+            update_frame,
             text='Install updates automatically',
             variable=self.auto_update_var
         ).pack(anchor=tk.W)
+        version_row = ttk.Frame(update_frame)
+        version_row.pack(fill=tk.X, pady=(8, 0))
+        ttk.Label(version_row, text=f'Installed version: {__version__}').pack(side=tk.LEFT)
+        ttk.Button(
+            version_row,
+            text='Check for Updates',
+            command=self.on_check_updates,
+            state=tk.NORMAL if self.on_check_updates else tk.DISABLED
+        ).pack(side=tk.RIGHT)
 
         # Buttons
         button_frame = ttk.Frame(container)

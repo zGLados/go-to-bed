@@ -3,12 +3,14 @@
 ## [3.1.0] – unreleased
 
 ### Added
-- **Auto-update:** checks GitHub 1 minute after start and daily, downloads and installs new versions and restarts – never while a reminder is open or a snooze is running. Downloads are checked against the SHA-256 checksum from GitHub, and the new version must pass a start test before it replaces the old one.
-- Setting **Install updates automatically** (default on); when off, the tray shows **Install Update vX.Y.Z**.
-- Tray entry **Check for Updates**.
+- **Auto-update:** checks GitHub at every start and daily, downloads and installs new versions and restarts – never while a reminder is open or a snooze is running. Downloads are checked against the SHA-256 checksum from GitHub, and the new version must pass a start test before it replaces the old one.
+- Setting **Install updates automatically** (default on); when off, Go-to-Bed asks whether to install, and the tray keeps **Install Update vX.Y.Z** if you say no.
+- **Check for Updates** button in the settings (new *Updates* section with the installed version) and in the tray.
+- **Self-installation per user:** the downloaded exe installs itself to `%LOCALAPPDATA%\Programs\GotoBed` (no admin rights; updates always work), adds a Start menu entry and an *Apps & features* entry.
+- **Uninstall** via *Apps & features* (or `--uninstall [--quiet]`): quits the running app, removes program, shortcut, autostart and – if you want – your settings.
 - Screenshots in the README.
-- Command line options `--update-now` and `--report-version FILE`; `build.py --dist DIR`.
-- Tests for the updater, an end-to-end update test in CI and `tools/screenshots.py`.
+- Command line options `--update-now`, `--report-version FILE`, `--uninstall [--quiet]`; `build.py --dist DIR`.
+- Tests for updater and installer, end-to-end update and install/uninstall tests in CI, `tools/screenshots.py`.
 
 ## [3.0.0] – 2026-10-10
 

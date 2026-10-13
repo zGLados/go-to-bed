@@ -70,6 +70,9 @@ jobs:
           git checkout -- src/version.py
           python tools/e2e_update.py dist-old\GotoBed.exe dist\GotoBed.exe
 
+      - name: End-to-end install / uninstall test
+        run: python tools/e2e_install.py dist\GotoBed.exe
+
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:

@@ -17,7 +17,8 @@ A lightweight bedtime reminder for Windows that lives in the system tray and hel
 - 📊 **Statistics** - track how often you actually went to bed
 - 🚀 **Autostart** - optionally starts with Windows
 - 💤 **Sleep-safe** - reminders missed by up to 5 minutes (e.g. PC was asleep) are still shown
-- 🔄 **Auto-update** - installs new versions from GitHub by itself (can be turned off)
+- 🔄 **Auto-update** - checks for new versions at every start and daily, installs them by itself (or asks you), plus a *Check for Updates* button
+- 📥 **Installs itself** - no installer and no admin rights needed; Start menu entry and clean uninstall via *Apps & features*
 
 ## 📦 Download
 
@@ -26,9 +27,22 @@ Every push to `main` is built automatically by GitHub Actions:
 - **Releases**: download `GotoBed.exe` from the [latest release](../../releases/latest) (built for every `v*` tag)
 - **Latest build**: open the newest run under [Actions](../../actions/workflows/build.yml) and download the `GotoBed-windows` artifact
 
-The .exe is standalone - no Python needed. Just run it.
+The .exe is standalone - no Python needed.
+
+### Installation
+
+Just run the downloaded `GotoBed.exe`. On the first start it **installs itself for your Windows user**:
+
+- copies itself to `%LOCALAPPDATA%\Programs\GotoBed\GotoBed.exe` (no admin rights needed) and starts from there,
+- adds **Go-to-Bed** to the Start menu,
+- adds an entry under *Settings → Apps → Installed apps* (*Apps & features*) for uninstalling,
+- shows *"Go-to-Bed installed"* – you can then **delete the downloaded file**.
+
+Starting a downloaded file again later just starts the installed version (an older download never replaces a newer installation).
 
 > Windows SmartScreen may warn because the .exe is not code-signed: click *More info → Run anyway*.
+
+> Coming from 3.0.0? Quit the old version (tray → Quit), start the new download once, then delete the old `GotoBed.exe`. The autostart entry is moved to the installed copy automatically.
 
 ## 🎯 Usage
 
@@ -45,7 +59,7 @@ On first launch the settings window opens. Afterwards the app sits in the system
 | **Test Reminder** | Shows the bedtime reminder right now |
 | **Show Data Folder** | Opens `%APPDATA%\GotoBed` (config, stats, log) |
 | **Install Update vX.Y.Z** | Only visible when an update is waiting (automatic updates turned off) |
-| **Check for Updates** | Checks GitHub right now and offers to install a newer version |
+| **Check for Updates** | Checks GitHub right now and offers to install a newer version (same as the button in the settings) |
 | **Quit (vX.Y.Z)** | Exits the app and shows the installed version |
 
 Only one instance runs at a time; starting it again shows a hint instead.
@@ -61,7 +75,9 @@ Only one instance runs at a time; starting it again shows a hint instead.
 | Snooze duration | 10 min | How long *Snooze* postpones the reminder (1–120) |
 | Start with Windows | on | Starts `GotoBed.exe` automatically after login |
 | Play notification sound | on | Windows sound when a reminder appears |
-| Install updates automatically | on | Installs new versions without asking (see [Updates](#-updates)) |
+| Install updates automatically | on | Installs new versions without asking; off = you are asked (see [Updates](#-updates)) |
+
+The *Updates* section of the settings also shows the installed version and has a **Check for Updates** button.
 
 ### How reminders work
 
@@ -94,14 +110,15 @@ The last 100 events are kept.
 
 Go-to-Bed keeps itself up to date from the [GitHub releases](../../releases):
 
-- It checks **1 minute after start and then once a day** (only a small request to the GitHub API).
-- With **Install updates automatically** on (default), a newer version is downloaded in the background, checked and installed; Go-to-Bed then restarts by itself and shows *"Go-to-Bed updated"*. It never restarts while a reminder is open or a snooze is running – it waits until you're done.
-- With the setting off, you get a notification and the tray entry **Install Update vX.Y.Z**.
-- **Check for Updates** in the tray checks right away.
+- It checks **every time Go-to-Bed starts** (a few seconds after the start, so also at every Windows login with autostart) **and once a day** while it runs – only a small request to the GitHub API.
+- With **Install updates automatically** on (default), a newer version is downloaded in the background, checked and installed; Go-to-Bed then restarts by itself and shows *"Go-to-Bed updated"*.
+- With the setting off, Go-to-Bed **asks you** whether to install it now. If you choose *No*, the tray menu keeps an **Install Update vX.Y.Z** entry.
+- The **Check for Updates** button (settings window, *Updates* section) and the tray entry of the same name check right away and ask before installing.
+- It never restarts while a reminder is open or a snooze is running – it waits until you're done.
 
 Safety: the download must match the size and SHA-256 checksum published by GitHub, and the new exe is started once in a test mode and must report the expected version before it replaces the old one. If anything fails, the current version keeps running unchanged and the error is in `gotobed.log`.
 
-The update replaces `GotoBed.exe` in the folder where it is, so that folder must be writable (e.g. Desktop, Documents or `%LOCALAPPDATA%\Programs` – not `C:\Program Files`). During an update you may briefly see `GotoBed.new.exe` / `GotoBed.old.exe` next to it; they are removed automatically.
+Because Go-to-Bed lives in your user folder (`%LOCALAPPDATA%\Programs\GotoBed`), updates never need admin rights or a UAC prompt. During an update you may briefly see `GotoBed.new.exe` / `GotoBed.old.exe` there; they are removed automatically.
 
 > Versions before 3.1.0 have no updater – download 3.1.0 once by hand, from then on it updates itself.
 
@@ -119,11 +136,11 @@ To move to another PC, copy this folder.
 
 ## 🗑️ Uninstall
 
-1. Tray → **Settings** → uncheck **Start with Windows** → *Save* (removes the autostart entry).
-2. Tray → **Quit**.
-3. Delete `GotoBed.exe` and the folder `%APPDATA%\GotoBed`.
+*Windows Settings → Apps → Installed apps* → **Go-to-Bed** → *Uninstall*.
 
-If you already deleted the exe: the autostart entry is `GotoBed` under `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` – remove it there or in *Task Manager → Startup apps*.
+Go-to-Bed asks whether to also delete your settings and statistics, quits the running app and removes the program folder, the Start menu entry, the autostart entry and the *Apps* entry.
+
+Same from the command line: `"%LOCALAPPDATA%\Programs\GotoBed\GotoBed.exe" --uninstall` (add `--quiet` for no questions; settings are then kept).
 
 ## 🐛 Troubleshooting
 
@@ -131,9 +148,9 @@ If you already deleted the exe: the autostart entry is `GotoBed` under `HKEY_CUR
 |---|---|
 | SmartScreen blocks the start | *More info → Run anyway* (the exe is not code-signed) |
 | No tray icon | Check the hidden icons (**^** in the taskbar) |
-| "Go-to-Bed is already running" | It is already in the tray; quit it there first |
+| "Go-to-Bed is already running" | It is already in the tray. To install a downloaded file instead, quit it there first |
 | No Windows notification | Windows *Settings → System → Notifications* – allow notifications, check *Do not disturb*. The reminder window appears anyway |
-| Update failed | Usually the exe's folder is not writable – move `GotoBed.exe` e.g. to Documents, or download the new version by hand. Details in `gotobed.log` |
+| Update or installation failed | Go-to-Bed keeps running the current version (from where it is). Details in `gotobed.log`; download the new version by hand from the [releases](../../releases) |
 | Reminder did not appear | Is today an active day? Was the PC asleep for more than 5 minutes past the time? Look at `gotobed.log` |
 | Anything else | Look at `gotobed.log` in the data folder and open an [issue](../../issues) with it |
 
@@ -143,11 +160,12 @@ Requires Python 3.12. The app targets Windows; on Linux (incl. WSLg) it runs for
 
 ```bash
 pip install -r requirements-dev.txt
-python -m pytest                 # unit tests (scheduler, config)
+python -m pytest                 # unit tests
 python src/main.py               # run the app
 python src/main.py --self-test   # open every window once and exit (0 = OK)
 python build.py                  # build dist/GotoBed.exe (on Windows; --dist DIR for another folder)
 python tools/e2e_update.py OLD_EXE NEW_EXE   # end-to-end test of the updater with two builds
+python tools/e2e_install.py EXE  # end-to-end test of self-install + uninstall (on Windows: CI only, it changes HKCU)
 python tools/screenshots.py      # regenerate docs/screenshots (Windows only)
 ```
 
@@ -157,13 +175,16 @@ Environment variables for testing:
 |---|---|
 | `GOTOBED_DATA_DIR` | Use this data folder instead of `%APPDATA%\GotoBed` |
 | `GOTOBED_UPDATE_URL` | Ask this URL instead of the GitHub API for the latest release |
-| `GOTOBED_UPDATE_ANY_PLATFORM` | Allow self-update outside Windows (local tests with a Linux build) |
+| `GOTOBED_INSTALL_DIR` | Install into this folder instead of `%LOCALAPPDATA%\Programs\GotoBed` |
+| `GOTOBED_ANY_PLATFORM` | Allow self-install and self-update outside Windows (local tests with a Linux build) |
+
+Command line options of `GotoBed.exe`: `--self-test`, `--uninstall [--quiet]`, `--update-now` (install a newer release without UI), `--report-version FILE` (used to verify downloads).
 
 How the code is organised, the threading model and the CI pipeline are described in **[docs/architecture.md](docs/architecture.md)**. Changes per version: **[CHANGELOG.md](CHANGELOG.md)**.
 
 ### Continuous integration
 
-Every push to `main`, every pull request and every `v*` tag runs [`.github/workflows/build.yml`](.github/workflows/build.yml) on Windows: tests → self-test from source → build → self-test of the built `GotoBed.exe` → **end-to-end update test** (a second build with version 0.0.1 updates itself to the new exe via a fake release server) → artifact upload (→ GitHub release for tags).
+Every push to `main`, every pull request and every `v*` tag runs [`.github/workflows/build.yml`](.github/workflows/build.yml) on Windows: tests → self-test from source → build → self-test of the built `GotoBed.exe` → **end-to-end update test** (a second build with version 0.0.1 updates itself to the new exe via a fake release server) → **end-to-end install / uninstall test** → artifact upload (→ GitHub release for tags).
 
 ### Releasing
 

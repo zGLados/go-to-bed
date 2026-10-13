@@ -13,7 +13,6 @@ import queue
 import subprocess
 import sys
 import threading
-import time
 import tkinter as tk
 import webbrowser
 from pathlib import Path
@@ -24,6 +23,8 @@ import pystray
 from pystray import MenuItem as item
 
 from config import Config, resource_path, APP_NAME
+import installer
+import instance
 from reminder import ReminderWindow
 from scheduler import BedtimeScheduler
 from settings import SettingsWindow
@@ -57,38 +58,14 @@ def enable_dpi_awareness() -> None:
         pass
 
 
-def acquire_single_instance_lock(wait_seconds: float = 0):
-    """Return a mutex handle, or None if another instance is already running (Windows only).
-
-    After an update the new instance waits for the old one to exit.
-    """
-    if sys.platform != 'win32':
-        return True
-    import ctypes
-    from ctypes import wintypes
-    kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
-    kernel32.CreateMutexW.restype = wintypes.HANDLE
-    kernel32.CreateMutexW.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.LPCWSTR]
-    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
-    deadline = time.monotonic() + wait_seconds
-    while True:
-        handle = kernel32.CreateMutexW(None, False, f'Local\\{APP_NAME}SingleInstance')
-        if ctypes.get_last_error() != 183:  # ERROR_ALREADY_EXISTS
-            return handle
-        kernel32.CloseHandle(handle)
-        if time.monotonic() >= deadline:
-            return None
-        time.sleep(0.5)
-
-
 class GotoBedApp:
     """Main application class."""
 
-    UPDATE_FIRST_CHECK_MS = 60 * 1000
+    UPDATE_FIRST_CHECK_MS = 3 * 1000  # check right after start
     UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000
     UPDATE_RETRY_MS = 60 * 1000
 
-    def __init__(self, config: Config = None, updated_from: str = None):
+    def __init__(self, config: Config = None, updated_from: str = None, installed_from: str = None):
         """Initialize the application."""
         self.config = config or Config()
         self.root = tk.Tk()
@@ -107,6 +84,7 @@ class GotoBedApp:
         self._stats_window = None
         self._reminder_window = None
         self._updated_from = updated_from
+        self._installed_from = installed_from
         self._pending_update = None   # Release waiting for "Install Update" (auto update off)
         self._update_running = False
 
@@ -139,18 +117,8 @@ class GotoBedApp:
             log.info("Running from source - autostart is only managed for the .exe")
             return
         try:
-            import winreg
-            key_path = r'Software\Microsoft\Windows\CurrentVersion\Run'
-            with winreg.OpenKey(winreg.HKEY_CURRENT_USER, key_path, 0, winreg.KEY_SET_VALUE) as key:
-                if self.config.get('autostart'):
-                    winreg.SetValueEx(key, APP_NAME, 0, winreg.REG_SZ, f'"{sys.executable}"')
-                    log.info("Autostart enabled: %s", sys.executable)
-                else:
-                    try:
-                        winreg.DeleteValue(key, APP_NAME)
-                        log.info("Autostart disabled")
-                    except FileNotFoundError:
-                        pass
+            installer.set_autostart(self.config.get('autostart'), Path(sys.executable))
+            log.info("Autostart %s", 'enabled: ' + sys.executable if self.config.get('autostart') else 'disabled')
         except Exception:
             log.exception("Error setting up autostart")
 
@@ -252,7 +220,8 @@ class GotoBedApp:
         if self._settings_window and self._settings_window.exists():
             self._settings_window.focus()
             return
-        self._settings_window = SettingsWindow(self.root, self.config.get_all(), self._save_settings)
+        self._settings_window = SettingsWindow(self.root, self.config.get_all(), self._save_settings,
+                                               on_check_updates=lambda: self._check_for_updates(manual=True))
 
     def _open_stats(self) -> None:
         """Open statistics window, replacing an open one so the numbers are current."""
@@ -381,8 +350,10 @@ class GotoBedApp:
         else:
             self._pending_update = release
             self._refresh_tray()
-            self._notify('Update available', f'Go-to-Bed {release.version} is available. '
-                                             'Right-click the tray icon → Install Update.')
+            if messagebox.askyesno('Go-to-Bed', f'Version {release.version} is available (you have {__version__}).\n\n'
+                                   'Install it now? Go-to-Bed restarts afterwards.\n\n'
+                                   '(Later: tray icon → Install Update)'):
+                self._start_update(release, manual=True)
 
     def _install_pending_update(self) -> None:
         """Tray entry 'Install Update vX.Y.Z'."""
@@ -442,6 +413,14 @@ class GotoBedApp:
         else:
             self._notify('Update failed', 'Go-to-Bed could not update itself. See the log for details.')
 
+    @staticmethod
+    def _register_install(exe: Path) -> None:
+        """Refresh Start menu shortcut and "Apps & features" entry (background thread)."""
+        try:
+            installer.register(exe)
+        except Exception:
+            log.exception("Could not register the installation")
+
     def _quit_app(self) -> None:
         """Quit the application."""
         log.info("Quitting Go-to-Bed...")
@@ -467,9 +446,16 @@ class GotoBedApp:
             self.config.save()
             self.root.after(500, self._open_settings)
 
+        instance.watch_quit_signal(lambda: self.call_ui(self._quit_app))
         if updater.is_supported():
-            threading.Thread(target=updater.cleanup_old, args=(Path(sys.executable),),
-                             name='update-cleanup', daemon=True).start()
+            exe = Path(sys.executable)
+            threading.Thread(target=updater.cleanup_old, args=(exe,), name='update-cleanup', daemon=True).start()
+            if installer.is_installed(exe):
+                threading.Thread(target=self._register_install, args=(exe,), name='register', daemon=True).start()
+        if self._installed_from:
+            log.info("Started from install folder (installed from %s)", self._installed_from)
+            self.root.after(3000, lambda: self._notify(
+                'Go-to-Bed installed', 'Find it in the Start menu. You can delete the downloaded file.'))
         self._schedule_update_check(self.UPDATE_FIRST_CHECK_MS)
         if self._updated_from:
             log.info("Started after update from v%s", self._updated_from)
@@ -531,6 +517,45 @@ def update_now() -> int:
     return 0
 
 
+def show_message(text: str, kind: str = 'info'):
+    """Show a message box without the app running. Returns the answer for 'yesno'."""
+    root = tk.Tk()
+    root.withdraw()
+    try:
+        if kind == 'yesno':
+            return messagebox.askyesno('Go-to-Bed', text)
+        getattr(messagebox, 'showerror' if kind == 'error' else 'showinfo')('Go-to-Bed', text)
+    finally:
+        root.destroy()
+
+
+def uninstall(config: Config, quiet: bool) -> int:
+    """Remove Go-to-Bed (called from "Apps & features" or with --uninstall)."""
+    if not quiet and not show_message('Remove Go-to-Bed from this computer?', 'yesno'):
+        return 0
+    delete_data = not quiet and show_message(
+        'Also delete your settings and statistics?\n\n'
+        f'({config.data_dir})', 'yesno')
+
+    instance.request_quit()
+    lock = instance.acquire_lock(wait_seconds=20)
+    if lock is None:
+        log.error("Uninstall: the running Go-to-Bed did not quit")
+        if not quiet:
+            show_message('Go-to-Bed is still running. Quit it from the tray icon and try again.', 'error')
+        return 1
+
+    try:
+        installer.uninstall(Path(sys.executable), config.data_dir if delete_data else None)
+    except Exception as e:
+        if not quiet:
+            show_message(f'Uninstall failed: {e}', 'error')
+        return 1
+    if not quiet:
+        show_message('Go-to-Bed has been removed.')
+    return 0
+
+
 def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(description='Go-to-Bed bedtime reminder')
@@ -540,7 +565,12 @@ def main() -> int:
                         help='write the version to FILE and exit (used to verify a downloaded update)')
     parser.add_argument('--update-now', action='store_true',
                         help='install a newer release if there is one, restart and exit')
+    parser.add_argument('--uninstall', action='store_true',
+                        help='remove Go-to-Bed (shortcut, autostart, Apps & features entry, program files)')
+    parser.add_argument('--quiet', action='store_true',
+                        help='with --uninstall: no questions, keep settings and statistics')
     parser.add_argument('--updated-from', metavar='VERSION', help=argparse.SUPPRESS)
+    parser.add_argument('--installed-from', metavar='PATH', help=argparse.SUPPRESS)
     args = parser.parse_args()
 
     if args.report_version:
@@ -559,21 +589,35 @@ def main() -> int:
         log.info("Self-test passed")
         return 0
 
-    lock = acquire_single_instance_lock(wait_seconds=30 if args.updated_from else 0)
+    if args.uninstall:
+        return uninstall(config, quiet=args.quiet)
+
+    restarted = bool(args.updated_from or args.installed_from)
+    lock = instance.acquire_lock(wait_seconds=30 if restarted else 0)
     if args.update_now:
         if lock is None:
             log.error("Go-to-Bed is running - quit it before using --update-now")
             return 1
         return update_now()
     if lock is None:
-        root = tk.Tk()
-        root.withdraw()
-        messagebox.showinfo('Go-to-Bed', 'Go-to-Bed is already running.\nLook for the icon in the system tray.')
-        root.destroy()
+        exe = Path(sys.executable)
+        hint = ('\n\nTo install this file instead, quit the running Go-to-Bed '
+                '(tray icon → Quit) and start it again.') if installer.needs_install(exe) else ''
+        show_message('Go-to-Bed is already running.\nLook for the icon in the system tray.' + hint)
         return 0
 
+    exe = Path(sys.executable)
+    if not restarted and installer.needs_install(exe):
+        try:
+            target = installer.install_self(exe)
+            instance.release_lock(lock)
+            updater.relaunch(target, ['--installed-from', str(exe)])
+            return 0
+        except (installer.InstallError, OSError) as e:
+            log.error("Installation failed, running from %s instead: %s", exe, e)
+
     try:
-        GotoBedApp(config, updated_from=args.updated_from).run()
+        GotoBedApp(config, updated_from=args.updated_from, installed_from=args.installed_from).run()
     except Exception:
         log.exception("Fatal error")
         return 1

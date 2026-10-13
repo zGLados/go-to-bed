@@ -60,11 +60,26 @@ def test_update_waits_while_snoozed(app):
     assert app.calls[-1] == 'quit'
 
 
-def test_auto_update_off_only_offers_update(app):
+def test_auto_update_off_asks_and_later_keeps_tray_entry(app, monkeypatch):
+    questions = []
+    monkeypatch.setattr(main.messagebox, 'askyesno', lambda *a, **k: questions.append(a) or False)
     app.config.config['auto_update'] = False
     app._on_update_checked(RELEASE, None, manual=False)
+    assert len(questions) == 1
     assert app._pending_update == RELEASE
     assert app.calls == []
+
+
+def test_auto_update_off_asks_and_yes_installs(app, monkeypatch):
+    monkeypatch.setattr(main.messagebox, 'askyesno', lambda *a, **k: True)
+    app.config.config['auto_update'] = False
+    app._on_update_checked(RELEASE, None, manual=False)
+    pump(app, lambda: 'quit' in app.calls)
+    assert app.calls[-1] == 'quit'
+
+
+def test_first_check_happens_at_start():
+    assert main.GotoBedApp.UPDATE_FIRST_CHECK_MS <= 5000
 
 
 def test_older_release_is_ignored(app):

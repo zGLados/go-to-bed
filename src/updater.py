@@ -60,9 +60,9 @@ def is_newer(release: Release, current: str = __version__) -> bool:
 
 
 def is_supported() -> bool:
-    """Only the built exe can replace itself (Windows; other platforms only for local testing)."""
+    """Only the built exe can update/install itself (Windows; other platforms only for local testing)."""
     frozen = bool(getattr(sys, 'frozen', False))
-    return frozen and (sys.platform == 'win32' or bool(os.getenv('GOTOBED_UPDATE_ANY_PLATFORM')))
+    return frozen and (sys.platform == 'win32' or bool(os.getenv('GOTOBED_ANY_PLATFORM')))
 
 
 def _request(url: str) -> urllib.request.Request:
@@ -143,9 +143,9 @@ def child_env(**extra: str) -> dict:
     return {**os.environ, 'PYINSTALLER_RESET_ENVIRONMENT': '1', **extra}
 
 
-def verify_exe(exe: Path, expected_version: str) -> None:
-    """Start the new exe once and check that it runs and reports the expected version."""
-    with tempfile.TemporaryDirectory(prefix='gotobed-update-') as tmp:
+def version_of(exe: Path) -> Optional[str]:
+    """Start `exe --report-version` and return the version it reports (None if it does not work)."""
+    with tempfile.TemporaryDirectory(prefix='gotobed-version-') as tmp:
         report = Path(tmp) / 'version.txt'
         try:
             result = subprocess.run(
@@ -154,12 +154,18 @@ def verify_exe(exe: Path, expected_version: str) -> None:
                 timeout=120
             )
         except Exception as e:
-            raise UpdateError(f'The new version could not be started: {e}') from e
-        reported = report.read_text(encoding='utf-8').strip() if report.exists() else ''
-        if result.returncode != 0 or reported != expected_version:
-            raise UpdateError(
-                f'The new version failed its check (exit code {result.returncode}, version {reported or "?"})'
-            )
+            log.warning("Could not start %s: %s", exe, e)
+            return None
+        if result.returncode != 0 or not report.exists():
+            return None
+        return report.read_text(encoding='utf-8').strip()
+
+
+def verify_exe(exe: Path, expected_version: str) -> None:
+    """Start the new exe once and check that it runs and reports the expected version."""
+    reported = version_of(exe)
+    if reported != expected_version:
+        raise UpdateError(f'The new version failed its start test (reported version: {reported or "none"})')
     log.info("Verified %s (v%s)", exe, expected_version)
 
 
