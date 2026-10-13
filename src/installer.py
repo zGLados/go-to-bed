@@ -228,14 +228,16 @@ def set_autostart(enabled: bool, exe: Path) -> None:
     if sys.platform != 'win32':
         return
     import winreg
-    with winreg.OpenKey(winreg.HKEY_CURRENT_USER, RUN_KEY, 0, winreg.KEY_SET_VALUE) as key:
-        if enabled:
+    if enabled:
+        # CreateKeyEx: the Run key does not exist in every (fresh) user profile
+        with winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, RUN_KEY, 0, winreg.KEY_SET_VALUE) as key:
             winreg.SetValueEx(key, APP_NAME, 0, winreg.REG_SZ, f'"{exe}"')
-        else:
-            try:
-                winreg.DeleteValue(key, APP_NAME)
-            except FileNotFoundError:
-                pass
+        return
+    try:
+        with winreg.OpenKey(winreg.HKEY_CURRENT_USER, RUN_KEY, 0, winreg.KEY_SET_VALUE) as key:
+            winreg.DeleteValue(key, APP_NAME)
+    except FileNotFoundError:
+        pass
 
 
 def _powershell(script: str, wait: bool = True, **env: str) -> None:

@@ -13,6 +13,9 @@
 - Command line options `--update-now`, `--report-version FILE`, `--uninstall [--quiet]`; `build.py --dist DIR`.
 - Tests for updater and installer; end-to-end update, install/uninstall and migration (real 3.0.0 → new) tests in CI; `tools/screenshots.py`.
 
+### Fixed
+- Autostart could not be turned on in a Windows user profile without the `Run` registry key (now created when missing).
+
 ## [3.0.0] – 2026-10-10
 
 Python version made reliable and built automatically.
