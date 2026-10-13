@@ -41,7 +41,8 @@ class Config:
         'snooze_minutes': 10,
         'pre_warning_minutes': 15,
         'autostart': True,
-        'sound_enabled': True
+        'sound_enabled': True,
+        'auto_update': True
     }
 
     def __init__(self, data_dir: Optional[Path] = None):
@@ -92,7 +93,7 @@ class Config:
             except (TypeError, ValueError):
                 config[key] = defaults[key]
 
-        for key in ('enabled', 'autostart', 'sound_enabled'):
+        for key in ('enabled', 'autostart', 'sound_enabled', 'auto_update'):
             config[key] = bool(config[key])
         return config
 

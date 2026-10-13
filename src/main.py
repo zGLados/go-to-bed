@@ -13,7 +13,10 @@ import queue
 import subprocess
 import sys
 import threading
+import time
 import tkinter as tk
+import webbrowser
+from pathlib import Path
 from tkinter import messagebox
 
 from PIL import Image, ImageDraw
@@ -25,6 +28,7 @@ from reminder import ReminderWindow
 from scheduler import BedtimeScheduler
 from settings import SettingsWindow
 from stats import StatsWindow
+import updater
 from version import __version__
 
 log = logging.getLogger('gotobed')
@@ -53,22 +57,38 @@ def enable_dpi_awareness() -> None:
         pass
 
 
-def acquire_single_instance_lock():
-    """Return a mutex handle, or None if another instance is already running (Windows only)."""
+def acquire_single_instance_lock(wait_seconds: float = 0):
+    """Return a mutex handle, or None if another instance is already running (Windows only).
+
+    After an update the new instance waits for the old one to exit.
+    """
     if sys.platform != 'win32':
         return True
     import ctypes
+    from ctypes import wintypes
     kernel32 = ctypes.WinDLL('kernel32', use_last_error=True)
-    handle = kernel32.CreateMutexW(None, False, f'Local\\{APP_NAME}SingleInstance')
-    if ctypes.get_last_error() == 183:  # ERROR_ALREADY_EXISTS
-        return None
-    return handle
+    kernel32.CreateMutexW.restype = wintypes.HANDLE
+    kernel32.CreateMutexW.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.LPCWSTR]
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    deadline = time.monotonic() + wait_seconds
+    while True:
+        handle = kernel32.CreateMutexW(None, False, f'Local\\{APP_NAME}SingleInstance')
+        if ctypes.get_last_error() != 183:  # ERROR_ALREADY_EXISTS
+            return handle
+        kernel32.CloseHandle(handle)
+        if time.monotonic() >= deadline:
+            return None
+        time.sleep(0.5)
 
 
 class GotoBedApp:
     """Main application class."""
 
-    def __init__(self, config: Config = None):
+    UPDATE_FIRST_CHECK_MS = 60 * 1000
+    UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000
+    UPDATE_RETRY_MS = 60 * 1000
+
+    def __init__(self, config: Config = None, updated_from: str = None):
         """Initialize the application."""
         self.config = config or Config()
         self.root = tk.Tk()
@@ -86,6 +106,9 @@ class GotoBedApp:
         self._settings_window = None
         self._stats_window = None
         self._reminder_window = None
+        self._updated_from = updated_from
+        self._pending_update = None   # Release waiting for "Install Update" (auto update off)
+        self._update_running = False
 
     # ------------------------------------------------------------------ threading
 
@@ -163,6 +186,11 @@ class GotoBedApp:
             pystray.Menu.SEPARATOR,
             item('Test Reminder', self._on_tray(self._show_bedtime_reminder)),
             item('Show Data Folder', self._on_tray(self._open_data_folder)),
+            pystray.Menu.SEPARATOR,
+            item(lambda _: f'Install Update v{self._pending_update.version}' if self._pending_update else '',
+                 self._on_tray(self._install_pending_update),
+                 visible=lambda _: self._pending_update is not None),
+            item('Check for Updates', self._on_tray(lambda: self._check_for_updates(manual=True))),
             pystray.Menu.SEPARATOR,
             item(f'Quit (v{__version__})', self._on_tray(self._quit_app))
         )
@@ -297,6 +325,123 @@ class GotoBedApp:
         log.info("User went to bed")
         self.config.add_stat_entry('dismissed')
 
+    # ------------------------------------------------------------------ updates
+
+    def _schedule_update_check(self, delay_ms: int) -> None:
+        """Check for updates after `delay_ms`, then once a day."""
+        def check():
+            self._check_for_updates(manual=False)
+            self._schedule_update_check(self.UPDATE_INTERVAL_MS)
+        self.root.after(delay_ms, check)
+
+    def _check_for_updates(self, manual: bool) -> None:
+        """Ask GitHub for a newer release in the background."""
+        if self._update_running:
+            if manual:
+                messagebox.showinfo('Go-to-Bed', 'An update is already being installed.')
+            return
+
+        def worker():
+            try:
+                release = updater.fetch_latest()
+                error = None
+            except updater.UpdateError as e:
+                release, error = None, str(e)
+            self.call_ui(self._on_update_checked, release, error, manual)
+
+        threading.Thread(target=worker, name='update-check', daemon=True).start()
+
+    def _on_update_checked(self, release, error, manual: bool) -> None:
+        """Handle the result of an update check (Tk thread)."""
+        if error:
+            log.warning(error)
+            if manual:
+                messagebox.showerror('Go-to-Bed', error)
+            return
+        if release is None or not updater.is_newer(release):
+            log.info("No update available (running v%s)", __version__)
+            if manual:
+                messagebox.showinfo('Go-to-Bed', f'You are using the latest version (v{__version__}).')
+            return
+
+        log.info("Update available: v%s", release.version)
+        if not updater.is_supported():
+            if manual and messagebox.askyesno(
+                    'Go-to-Bed', f'Version {release.version} is available.\n\n'
+                    'Automatic updates only work in GotoBed.exe. Open the download page?'):
+                webbrowser.open(updater.RELEASES_PAGE)
+            return
+
+        if manual:
+            if messagebox.askyesno('Go-to-Bed', f'Version {release.version} is available (you have {__version__}).\n\n'
+                                   'Install it now? Go-to-Bed restarts afterwards.'):
+                self._start_update(release, manual=True)
+        elif self.config.get('auto_update'):
+            self._start_update(release, manual=False)
+        else:
+            self._pending_update = release
+            self._refresh_tray()
+            self._notify('Update available', f'Go-to-Bed {release.version} is available. '
+                                             'Right-click the tray icon → Install Update.')
+
+    def _install_pending_update(self) -> None:
+        """Tray entry 'Install Update vX.Y.Z'."""
+        if self._pending_update:
+            self._start_update(self._pending_update, manual=True)
+
+    def _start_update(self, release, manual: bool) -> None:
+        """Download and install `release` in the background, then restart."""
+        if self._update_running:
+            return
+        self._update_running = True
+        self._pending_update = None
+        self._refresh_tray()
+        current_exe = Path(sys.executable)
+
+        def worker():
+            try:
+                new_exe, _ = updater.exe_paths(current_exe)
+                updater.download(release, new_exe)
+                updater.verify_exe(new_exe, release.version)
+            except updater.UpdateError as e:
+                updater.cleanup_old(current_exe, attempts=1)
+                self.call_ui(self._on_update_failed, str(e), manual)
+                return
+            self.call_ui(self._finish_update_when_idle, release, new_exe, manual)
+
+        threading.Thread(target=worker, name='update', daemon=True).start()
+
+    def _is_busy(self) -> bool:
+        """True while a reminder is open or a snooze is pending - don't restart then."""
+        reminder_open = self._reminder_window is not None and self._reminder_window.exists()
+        return reminder_open or self._snooze_job is not None
+
+    def _finish_update_when_idle(self, release, new_exe: Path, manual: bool) -> None:
+        """Swap the exe and restart, but not in the middle of a reminder."""
+        if self._is_busy():
+            log.info("Update ready, waiting until no reminder is active")
+            self.root.after(self.UPDATE_RETRY_MS, lambda: self._finish_update_when_idle(release, new_exe, manual))
+            return
+        current_exe = Path(sys.executable)
+        try:
+            updater.install(new_exe, current_exe)
+            updater.relaunch(current_exe, ['--updated-from', __version__])
+        except Exception as e:
+            self._on_update_failed(str(e), manual)
+            return
+        log.info("Restarting into v%s", release.version)
+        self._quit_app()
+
+    def _on_update_failed(self, error: str, manual: bool) -> None:
+        """Report a failed update; the running version stays untouched."""
+        log.error("Update failed: %s", error)
+        self._update_running = False
+        if manual:
+            if messagebox.askyesno('Go-to-Bed', f'The update failed:\n{error}\n\nOpen the download page instead?'):
+                webbrowser.open(updater.RELEASES_PAGE)
+        else:
+            self._notify('Update failed', 'Go-to-Bed could not update itself. See the log for details.')
+
     def _quit_app(self) -> None:
         """Quit the application."""
         log.info("Quitting Go-to-Bed...")
@@ -322,6 +467,15 @@ class GotoBedApp:
             self.config.save()
             self.root.after(500, self._open_settings)
 
+        if updater.is_supported():
+            threading.Thread(target=updater.cleanup_old, args=(Path(sys.executable),),
+                             name='update-cleanup', daemon=True).start()
+        self._schedule_update_check(self.UPDATE_FIRST_CHECK_MS)
+        if self._updated_from:
+            log.info("Started after update from v%s", self._updated_from)
+            self.root.after(3000, lambda: self._notify(
+                'Go-to-Bed updated', f'Updated from {self._updated_from} to {__version__}.'))
+
         self.root.after(100, self._process_ui_queue)
         self.root.mainloop()
 
@@ -344,12 +498,53 @@ class GotoBedApp:
         self.root.destroy()
 
 
+def report_version(path: Path) -> int:
+    """Check that the bundled files are usable and write the version to `path`."""
+    try:
+        with Image.open(resource_path('assets', 'icon.ico')) as icon:
+            icon.load()
+        with Image.open(resource_path('assets', 'horse-sleeping-on-grass.png')) as image:
+            image.load()
+        path.write_text(__version__, encoding='utf-8')
+    except Exception:
+        return 1
+    return 0
+
+
+def update_now() -> int:
+    """Command line update: install a newer release and start it (no windows)."""
+    if not updater.is_supported():
+        log.error("Updating only works in GotoBed.exe")
+        return 1
+    try:
+        release = updater.fetch_latest()
+        if release is None or not updater.is_newer(release):
+            log.info("No update available (running v%s)", __version__)
+            return 0
+        current_exe = Path(sys.executable)
+        updater.update_to(release, current_exe)
+        updater.relaunch(current_exe, ['--updated-from', __version__])
+    except updater.UpdateError as e:
+        log.error("Update failed: %s", e)
+        return 1
+    log.info("Updated to v%s, new instance started", release.version)
+    return 0
+
+
 def main() -> int:
     """Main entry point."""
     parser = argparse.ArgumentParser(description='Go-to-Bed bedtime reminder')
     parser.add_argument('--self-test', action='store_true',
                         help='open all windows once and exit (exit code 0 = OK)')
+    parser.add_argument('--report-version', metavar='FILE',
+                        help='write the version to FILE and exit (used to verify a downloaded update)')
+    parser.add_argument('--update-now', action='store_true',
+                        help='install a newer release if there is one, restart and exit')
+    parser.add_argument('--updated-from', metavar='VERSION', help=argparse.SUPPRESS)
     args = parser.parse_args()
+
+    if args.report_version:
+        return report_version(Path(args.report_version))
 
     config = Config()
     setup_logging(config.log_file)
@@ -364,7 +559,12 @@ def main() -> int:
         log.info("Self-test passed")
         return 0
 
-    lock = acquire_single_instance_lock()
+    lock = acquire_single_instance_lock(wait_seconds=30 if args.updated_from else 0)
+    if args.update_now:
+        if lock is None:
+            log.error("Go-to-Bed is running - quit it before using --update-now")
+            return 1
+        return update_now()
     if lock is None:
         root = tk.Tk()
         root.withdraw()
@@ -373,7 +573,7 @@ def main() -> int:
         return 0
 
     try:
-        GotoBedApp(config).run()
+        GotoBedApp(config, updated_from=args.updated_from).run()
     except Exception:
         log.exception("Fatal error")
         return 1

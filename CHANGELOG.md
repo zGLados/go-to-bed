@@ -1,5 +1,15 @@
 # Changelog
 
+## [3.1.0] – unreleased
+
+### Added
+- **Auto-update:** checks GitHub 1 minute after start and daily, downloads and installs new versions and restarts – never while a reminder is open or a snooze is running. Downloads are checked against the SHA-256 checksum from GitHub, and the new version must pass a start test before it replaces the old one.
+- Setting **Install updates automatically** (default on); when off, the tray shows **Install Update vX.Y.Z**.
+- Tray entry **Check for Updates**.
+- Screenshots in the README.
+- Command line options `--update-now` and `--report-version FILE`; `build.py --dist DIR`.
+- Tests for the updater, an end-to-end update test in CI and `tools/screenshots.py`.
+
 ## [3.0.0] – 2026-10-10
 
 Python version made reliable and built automatically.

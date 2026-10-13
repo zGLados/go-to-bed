@@ -128,6 +128,13 @@ class SettingsWindow:
             variable=self.sound_var
         ).pack(anchor=tk.W)
 
+        self.auto_update_var = tk.BooleanVar(value=self.config.get('auto_update', True))
+        ttk.Checkbutton(
+            options_frame,
+            text='Install updates automatically',
+            variable=self.auto_update_var
+        ).pack(anchor=tk.W)
+
         # Buttons
         button_frame = ttk.Frame(container)
         button_frame.pack(fill=tk.X, pady=(10, 0))
@@ -163,7 +170,8 @@ class SettingsWindow:
                 'snooze_minutes': self._int(self.snooze_var, 'Snooze duration', 1, 120),
                 'pre_warning_minutes': self._int(self.prewarning_var, 'Pre-warning', 0, 120),
                 'autostart': self.autostart_var.get(),
-                'sound_enabled': self.sound_var.get()
+                'sound_enabled': self.sound_var.get(),
+                'auto_update': self.auto_update_var.get()
             }
         except ValueError as e:
             messagebox.showwarning('Invalid Settings', str(e), parent=self.window)

@@ -61,6 +61,15 @@ jobs:
           Get-Content "$env:GOTOBED_DATA_DIR\gotobed.log" -ErrorAction SilentlyContinue
           if ($p.ExitCode -ne 0) { Write-Error "Self-test failed with exit code $($p.ExitCode)"; exit 1 }
 
+      - name: End-to-end update test
+        shell: pwsh
+        run: |
+          # Build a fake "old" version 0.0.1 and let it update itself to the exe built above
+          (Get-Content src/version.py) -replace "__version__ = '.*'", "__version__ = '0.0.1'" | Set-Content src/version.py
+          python build.py --dist dist-old
+          git checkout -- src/version.py
+          python tools/e2e_update.py dist-old\GotoBed.exe dist\GotoBed.exe
+
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:
