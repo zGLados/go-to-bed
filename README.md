@@ -38,11 +38,11 @@ Just run the downloaded `GotoBed.exe`. On the first start it **installs itself f
 - adds an entry under *Settings → Apps → Installed apps* (*Apps & features*) for uninstalling,
 - shows *"Go-to-Bed installed"* – you can then **delete the downloaded file**.
 
-Starting a downloaded file again later just starts the installed version (an older download never replaces a newer installation).
+If an **older Go-to-Bed is running** (also 3.0.0), it is stopped and replaced automatically; an old `GotoBed.exe` that was used before (e.g. on the Desktop) is deleted and replaced by a **Go-to-Bed shortcut** in the same place. Starting a downloaded file again later just starts the installed version (an older download never replaces a newer installation).
 
 > Windows SmartScreen may warn because the .exe is not code-signed: click *More info → Run anyway*.
 
-> Coming from 3.0.0? Quit the old version (tray → Quit), start the new download once, then delete the old `GotoBed.exe`. The autostart entry is moved to the installed copy automatically.
+> **Coming from 3.0.0?** 3.0.0 cannot update itself, so download 3.1.0 once and double-click it – that's all. It stops the running 3.0.0, installs itself, keeps your settings and statistics, moves the autostart to the installed copy and replaces the old exe with a shortcut. From then on every update is automatic.
 
 ## 🎯 Usage
 
@@ -166,6 +166,7 @@ python src/main.py --self-test   # open every window once and exit (0 = OK)
 python build.py                  # build dist/GotoBed.exe (on Windows; --dist DIR for another folder)
 python tools/e2e_update.py OLD_EXE NEW_EXE   # end-to-end test of the updater with two builds
 python tools/e2e_install.py EXE  # end-to-end test of self-install + uninstall (on Windows: CI only, it changes HKCU)
+python tools/e2e_migrate.py LEGACY_EXE NEW_EXE  # running 3.0.0 -> new version (on Windows: CI only)
 python tools/screenshots.py      # regenerate docs/screenshots (Windows only)
 ```
 
@@ -184,7 +185,7 @@ How the code is organised, the threading model and the CI pipeline are described
 
 ### Continuous integration
 
-Every push to `main`, every pull request and every `v*` tag runs [`.github/workflows/build.yml`](.github/workflows/build.yml) on Windows: tests → self-test from source → build → self-test of the built `GotoBed.exe` → **end-to-end update test** (a second build with version 0.0.1 updates itself to the new exe via a fake release server) → **end-to-end install / uninstall test** → artifact upload (→ GitHub release for tags).
+Every push to `main`, every pull request and every `v*` tag runs [`.github/workflows/build.yml`](.github/workflows/build.yml) on Windows: tests → self-test from source → build → self-test of the built `GotoBed.exe` → **end-to-end update test** (a second build with version 0.0.1 updates itself to the new exe via a fake release server) → **end-to-end install / uninstall test** → **end-to-end migration test** (a real v3.0.0, built from its git tag, is running and gets replaced by starting the new exe) → artifact upload (→ GitHub release for tags).
 
 ### Releasing
 

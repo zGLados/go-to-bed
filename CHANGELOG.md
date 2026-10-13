@@ -7,10 +7,11 @@
 - Setting **Install updates automatically** (default on); when off, Go-to-Bed asks whether to install, and the tray keeps **Install Update vX.Y.Z** if you say no.
 - **Check for Updates** button in the settings (new *Updates* section with the installed version) and in the tray.
 - **Self-installation per user:** the downloaded exe installs itself to `%LOCALAPPDATA%\Programs\GotoBed` (no admin rights; updates always work), adds a Start menu entry and an *Apps & features* entry.
+- **One-click upgrade from 3.0.0:** starting the downloaded 3.1.0 stops a running older version, takes over settings and autostart and replaces the old exe with a shortcut.
 - **Uninstall** via *Apps & features* (or `--uninstall [--quiet]`): quits the running app, removes program, shortcut, autostart and – if you want – your settings.
 - Screenshots in the README.
 - Command line options `--update-now`, `--report-version FILE`, `--uninstall [--quiet]`; `build.py --dist DIR`.
-- Tests for updater and installer, end-to-end update and install/uninstall tests in CI, `tools/screenshots.py`.
+- Tests for updater and installer; end-to-end update, install/uninstall and migration (real 3.0.0 → new) tests in CI; `tools/screenshots.py`.
 
 ## [3.0.0] – 2026-10-10
 

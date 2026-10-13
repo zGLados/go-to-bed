@@ -73,6 +73,13 @@ jobs:
       - name: End-to-end install / uninstall test
         run: python tools/e2e_install.py dist\GotoBed.exe
 
+      - name: End-to-end migration test (running 3.0.0 -> this version)
+        run: |
+          git fetch --depth 1 origin tag v3.0.0
+          git worktree add legacy v3.0.0
+          python legacy\build.py
+          python tools/e2e_migrate.py legacy\dist\GotoBed.exe dist\GotoBed.exe
+
       - name: Upload artifact
         uses: actions/upload-artifact@v7
         with:

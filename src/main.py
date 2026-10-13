@@ -65,7 +65,8 @@ class GotoBedApp:
     UPDATE_INTERVAL_MS = 24 * 60 * 60 * 1000
     UPDATE_RETRY_MS = 60 * 1000
 
-    def __init__(self, config: Config = None, updated_from: str = None, installed_from: str = None):
+    def __init__(self, config: Config = None, updated_from: str = None, installed_from: str = None,
+                 replaced: list = None):
         """Initialize the application."""
         self.config = config or Config()
         self.root = tk.Tk()
@@ -85,6 +86,7 @@ class GotoBedApp:
         self._reminder_window = None
         self._updated_from = updated_from
         self._installed_from = installed_from
+        self._replaced = [Path(p) for p in replaced or []]
         self._pending_update = None   # Release waiting for "Install Update" (auto update off)
         self._update_running = False
 
@@ -413,6 +415,15 @@ class GotoBedApp:
         else:
             self._notify('Update failed', 'Go-to-Bed could not update itself. See the log for details.')
 
+    def _finish_install(self) -> None:
+        """Replace old copies of Go-to-Bed with shortcuts and tell the user (background thread)."""
+        replaced = installer.replace_legacy(self._replaced, Path(sys.executable)) if self._replaced else []
+        if replaced:
+            message = 'The old version was replaced. Find Go-to-Bed in the Start menu.'
+        else:
+            message = 'Find it in the Start menu. You can delete the downloaded file.'
+        self.call_ui(lambda: self.root.after(2000, lambda: self._notify('Go-to-Bed installed', message)))
+
     @staticmethod
     def _register_install(exe: Path) -> None:
         """Refresh Start menu shortcut and "Apps & features" entry (background thread)."""
@@ -454,8 +465,7 @@ class GotoBedApp:
                 threading.Thread(target=self._register_install, args=(exe,), name='register', daemon=True).start()
         if self._installed_from:
             log.info("Started from install folder (installed from %s)", self._installed_from)
-            self.root.after(3000, lambda: self._notify(
-                'Go-to-Bed installed', 'Find it in the Start menu. You can delete the downloaded file.'))
+            threading.Thread(target=self._finish_install, name='replace-legacy', daemon=True).start()
         self._schedule_update_check(self.UPDATE_FIRST_CHECK_MS)
         if self._updated_from:
             log.info("Started after update from v%s", self._updated_from)
@@ -571,6 +581,7 @@ def main() -> int:
                         help='with --uninstall: no questions, keep settings and statistics')
     parser.add_argument('--updated-from', metavar='VERSION', help=argparse.SUPPRESS)
     parser.add_argument('--installed-from', metavar='PATH', help=argparse.SUPPRESS)
+    parser.add_argument('--replaced', metavar='PATH', action='append', help=argparse.SUPPRESS)
     args = parser.parse_args()
 
     if args.report_version:
@@ -599,25 +610,34 @@ def main() -> int:
             log.error("Go-to-Bed is running - quit it before using --update-now")
             return 1
         return update_now()
+    exe = Path(sys.executable)
+    stopped = []
+    if not restarted and installer.needs_install(exe):
+        # First start of a downloaded exe: replace an older running version (e.g. 3.0.0)
+        stopped = installer.take_over(exe)
+        if stopped is None:
+            show_message('The same or a newer version of Go-to-Bed is already running.\n'
+                         'Look for the icon in the system tray.')
+            return 0
+        if lock is None:
+            lock = instance.acquire_lock(wait_seconds=15)
     if lock is None:
-        exe = Path(sys.executable)
-        hint = ('\n\nTo install this file instead, quit the running Go-to-Bed '
-                '(tray icon → Quit) and start it again.') if installer.needs_install(exe) else ''
-        show_message('Go-to-Bed is already running.\nLook for the icon in the system tray.' + hint)
+        show_message('Go-to-Bed is already running.\nLook for the icon in the system tray.')
         return 0
 
-    exe = Path(sys.executable)
     if not restarted and installer.needs_install(exe):
         try:
+            legacy = installer.legacy_exes(exe, [*(stopped or []), installer.autostart_path()])
             target = installer.install_self(exe)
             instance.release_lock(lock)
-            updater.relaunch(target, ['--installed-from', str(exe)])
+            updater.relaunch(target, ['--installed-from', str(exe)] + [a for p in legacy for a in ('--replaced', str(p))])
             return 0
         except (installer.InstallError, OSError) as e:
             log.error("Installation failed, running from %s instead: %s", exe, e)
 
     try:
-        GotoBedApp(config, updated_from=args.updated_from, installed_from=args.installed_from).run()
+        GotoBedApp(config, updated_from=args.updated_from, installed_from=args.installed_from,
+                   replaced=args.replaced).run()
     except Exception:
         log.exception("Fatal error")
         return 1

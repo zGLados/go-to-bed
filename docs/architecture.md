@@ -87,15 +87,22 @@ There is no separate installer: `GotoBed.exe` installs itself for the current us
 
 ```
 GotoBed.exe started from anywhere (e.g. Downloads)
-  └─ another instance running? ─► "already running" message (hint: quit it to install this file)
+  └─ take_over(): list running GotoBed.exe processes (Win32_Process via PowerShell), ask each for its
+                  version (--report-version; 3.0.0 cannot answer = older)
+                  same or newer running ─► "already running" message, exit
+                  only older ones ─► quit signal (3.1+), wait ≤10 s, then taskkill the rest (3.0.0)
+  └─ legacy_exes(): stopped exes + the old autostart target that are older and not the installation
   └─ install_self(): installed copy exists with the same or a newer version? ─► keep it
                      otherwise copy to …\Programs\GotoBed\GotoBed.new.exe and swap it in (rename trick, see Self-update)
   └─ release the mutex, start the installed copy with --installed-from <path>, exit
 installed copy
   └─ waits for the mutex, register(): Start menu shortcut (via PowerShell / WScript.Shell, only if missing)
      and HKCU …\Uninstall\GotoBed (DisplayVersion refreshed on every start, so it matches after updates);
-     autostart now points here; notification "Go-to-Bed installed"
+     autostart now points here; replace_legacy(): each --replaced exe is deleted (retrying while it exits)
+     and a "Go-to-Bed" shortcut to the installation is put in its folder; notification "Go-to-Bed installed"
 ```
+
+This makes the jump from 3.0.0 (no updater) a single action: start the downloaded new exe.
 
 - The install folder is `%LOCALAPPDATA%\Programs\GotoBed` (`GOTOBED_INSTALL_DIR` overrides it for tests). The data folder stays `%APPDATA%\GotoBed`, so settings survive reinstalling.
 - Self-install is skipped for `--updated-from` / `--installed-from` restarts, `--self-test`, `--report-version`, `--update-now`, `--uninstall` and when running from source. If it fails, the app logs the error and simply runs from where it is.
@@ -118,10 +125,11 @@ installed copy
 
 - `tests/` – pytest tests; `pytest.ini` puts `src` on the path.
   - `test_scheduler.py`, `test_config.py`, `test_updater.py` – no GUI; the updater tests use a local HTTP server.
-  - `test_installer.py` – install/keep newer/replace broken installation and uninstall with fake exes (shell scripts, skipped on Windows).
+  - `test_installer.py` – install/keep newer/replace broken installation, take-over decision, finding and replacing old exes, uninstall – with fake exes (shell scripts, skipped on Windows).
   - `test_app_update.py` – the update flow inside the app (auto update, waiting while snoozed, auto update off with "yes"/"no" answer, check at start) with the file and network steps mocked; needs a display, skipped without one.
 - `tools/e2e_update.py OLD_EXE NEW_EXE` – end-to-end test with two real builds: installs the old one in a temp folder, serves the new one as a fake release on localhost, runs `--update-now` and checks that the file was replaced, the new instance started and the old exe was removed.
 - `tools/e2e_install.py EXE` – end-to-end test of self-install and uninstall: starts the exe from a fake Downloads folder, checks the installed copy runs and registered itself (shortcut, *Apps* entry, autostart), then runs `--uninstall --quiet` and checks that the app quit and everything except the data folder is gone. Changes the current user's registry – CI only on Windows.
+- `tools/e2e_migrate.py LEGACY_EXE NEW_EXE` – migration test: a real 3.0.0 build runs from a fake Desktop; starting the new exe from a fake Downloads folder must stop it, install, keep settings, move autostart and replace the old exe with a shortcut. CI builds the 3.0.0 exe from the `v3.0.0` tag (`git worktree`). CI only on Windows.
 - `tools/screenshots.py` – regenerates `docs/screenshots/*.png` with sample data (Windows only, uses `PIL.ImageGrab`).
 - `GotoBed.exe --self-test` (or `python src/main.py --self-test`) creates the tray icon object, opens every window once, checks that the bundled image loads, closes everything and exits with code 0 (1 on error, details in the log).
 
@@ -131,6 +139,6 @@ installed copy
 
 1. Install `requirements-dev.txt` (Python 3.12, pip cache)
 2. For tags: fail if the tag is not `v` + `src/version.py`
-3. `pytest` → self-test from source → `build.py` → self-test of the built exe (exit code via `Start-Process -Wait -PassThru`, log printed) → end-to-end update test (builds a second exe with version 0.0.1 into `dist-old`, then `tools/e2e_update.py`) → end-to-end install / uninstall test (`tools/e2e_install.py`)
+3. `pytest` → self-test from source → `build.py` → self-test of the built exe (exit code via `Start-Process -Wait -PassThru`, log printed) → end-to-end update test (builds a second exe with version 0.0.1 into `dist-old`, then `tools/e2e_update.py`) → end-to-end install / uninstall test (`tools/e2e_install.py`) → end-to-end migration test (`legacy/` worktree of `v3.0.0` built with its own `build.py`, then `tools/e2e_migrate.py`)
 4. Upload `GotoBed.exe` as artifact `GotoBed-windows`
 5. For tags: create the GitHub release with the exe and generated notes

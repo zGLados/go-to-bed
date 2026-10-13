@@ -1,5 +1,7 @@
 """Tests for the update flow inside the running app (needs a display for Tk)."""
+import gc
 import sys
+import threading
 import time
 
 import pytest
@@ -11,25 +13,43 @@ import updater
 from config import Config
 
 
-@pytest.fixture
-def app(tmp_path, monkeypatch):
+@pytest.fixture(scope='module')
+def shared_app(tmp_path_factory):
+    """One app (= one Tk interpreter) for all tests: creating several Tk
+    instances in one process fails sporadically on Windows."""
     try:
-        application = main.GotoBedApp(Config(tmp_path / 'data'))
-    except tk.TclError:
-        pytest.skip('no display')
+        application = main.GotoBedApp(Config(tmp_path_factory.mktemp('data')))
+    except tk.TclError as e:
+        pytest.skip(f'Tk not available: {e}')
+    application.root.after(100, application._process_ui_queue)
+    yield application
+    application.root.destroy()
+    del application
+    gc.collect()  # free Tk objects here on the main thread
+
+
+@pytest.fixture
+def app(shared_app, tmp_path, monkeypatch):
     calls = []
-    exe = tmp_path / 'GotoBed.exe'
-    monkeypatch.setattr(sys, 'executable', str(exe))
+    monkeypatch.setattr(sys, 'executable', str(tmp_path / 'GotoBed.exe'))
     monkeypatch.setattr(updater, 'is_supported', lambda: True)
     monkeypatch.setattr(updater, 'download', lambda release, target: calls.append('download'))
     monkeypatch.setattr(updater, 'verify_exe', lambda path, version: calls.append('verify'))
     monkeypatch.setattr(updater, 'install', lambda new, current: calls.append('install'))
     monkeypatch.setattr(updater, 'relaunch', lambda exe, args: calls.append(('relaunch', tuple(args))))
-    monkeypatch.setattr(application, '_quit_app', lambda: calls.append('quit'))
-    application.calls = calls
-    application.root.after(100, application._process_ui_queue)
-    yield application
-    application.root.destroy()
+    monkeypatch.setattr(shared_app, '_quit_app', lambda: calls.append('quit'))
+    shared_app.calls = calls
+    shared_app.config.config['auto_update'] = True
+    yield shared_app
+    # Let worker threads finish, then reset the state for the next test
+    for thread in threading.enumerate():
+        if thread.name.startswith('update'):
+            thread.join(timeout=10)
+    shared_app.root.update()
+    shared_app._cancel_snooze()
+    shared_app._pending_update = None
+    shared_app._update_running = False
+    shared_app.__dict__.pop('UPDATE_RETRY_MS', None)
 
 
 def pump(app, until, timeout=15.0):
