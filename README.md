@@ -42,7 +42,7 @@ If an **older Go-to-Bed is running** (also 3.0.0), it is stopped and replaced au
 
 > Windows SmartScreen may warn because the .exe is not code-signed: click *More info → Run anyway*.
 
-> **Coming from 3.0.0?** 3.0.0 cannot update itself, so download 3.1.0 once and double-click it – that's all. It stops the running 3.0.0, installs itself, keeps your settings and statistics, moves the autostart to the installed copy and replaces the old exe with a shortcut. From then on every update is automatic.
+> **Coming from 3.0.0?** 3.0.0 cannot update itself, so download 3.1.0 once and double-click it – that's all. It stops the running 3.0.0, installs itself, keeps your settings and statistics, moves the autostart to the installed copy and replaces the old exe with a shortcut. From then on every update is automatic. Step by step: **[Upgrading from 3.0.0 to 3.1](docs/upgrade-from-3.0.md)**.
 
 ## 🎯 Usage
 
@@ -189,7 +189,7 @@ Every push to `main`, every pull request and every `v*` tag runs [`.github/workf
 
 ### Releasing
 
-1. Bump `__version__` in `src/version.py` and add an entry to `CHANGELOG.md`; commit.
+1. Bump `__version__` in `src/version.py`, add an entry to `CHANGELOG.md` and – optionally – release notes in `docs/release-notes/vX.Y.Z.md` (shown at the top of the GitHub release, followed by the generated notes); commit.
 2. `git push origin main` and wait until CI is green.
 3. `git tag vX.Y.Z && git push origin vX.Y.Z` – CI builds the exe and creates the release. The build fails if the tag does not match `src/version.py`.
 4. Within a day every running Go-to-Bed (3.1.0 or newer) updates itself to the new release.

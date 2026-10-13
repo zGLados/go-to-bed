@@ -87,9 +87,18 @@ jobs:
           path: dist/GotoBed.exe
           if-no-files-found: error
 
+      - name: Prepare release notes
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        run: |
+          # docs/release-notes/<tag>.md (if present) goes on top of the generated notes
+          $notes = "docs/release-notes/${{ github.ref_name }}.md"
+          if (Test-Path $notes) { Copy-Item $notes release-notes.md } else { Set-Content release-notes.md '' }
+
       - name: Create release
         if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v3
         with:
           files: dist/GotoBed.exe
+          body_path: release-notes.md
           generate_release_notes: true

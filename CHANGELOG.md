@@ -1,6 +1,8 @@
 # Changelog
 
-## [3.1.0] – unreleased
+## [3.1.0] – 2026-10-13
+
+Upgrading from 3.0.0: see [docs/upgrade-from-3.0.md](docs/upgrade-from-3.0.md).
 
 ### Added
 - **Auto-update:** checks GitHub at every start and daily, downloads and installs new versions and restarts – never while a reminder is open or a snooze is running. Downloads are checked against the SHA-256 checksum from GitHub, and the new version must pass a start test before it replaces the old one.

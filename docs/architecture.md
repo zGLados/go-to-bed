@@ -141,4 +141,4 @@ This makes the jump from 3.0.0 (no updater) a single action: start the downloade
 2. For tags: fail if the tag is not `v` + `src/version.py`
 3. `pytest` → self-test from source → `build.py` → self-test of the built exe (exit code via `Start-Process -Wait -PassThru`, log printed) → end-to-end update test (builds a second exe with version 0.0.1 into `dist-old`, then `tools/e2e_update.py`) → end-to-end install / uninstall test (`tools/e2e_install.py`) → end-to-end migration test (`legacy/` worktree of `v3.0.0` built with its own `build.py`, then `tools/e2e_migrate.py`)
 4. Upload `GotoBed.exe` as artifact `GotoBed-windows`
-5. For tags: create the GitHub release with the exe and generated notes
+5. For tags: create the GitHub release with the exe; the body is `docs/release-notes/<tag>.md` (if present) followed by the generated notes
