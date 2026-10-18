@@ -89,6 +89,7 @@ class GotoBedApp:
         self._replaced = [Path(p) for p in replaced or []]
         self._pending_update = None   # Release waiting for "Install Update" (auto update off)
         self._update_running = False
+        self._update_version = None   # version being downloaded and installed
 
     # ------------------------------------------------------------------ threading
 
@@ -309,7 +310,9 @@ class GotoBedApp:
         """Ask GitHub for a newer release in the background."""
         if self._update_running:
             if manual:
-                messagebox.showinfo('Go-to-Bed', 'An update is already being installed.')
+                messagebox.showinfo('Go-to-Bed', f'Version {self._update_version} is being downloaded and installed.\n\n'
+                                    'Go-to-Bed restarts by itself when it is done '
+                                    '(not while a reminder or the settings are open).')
             return
 
         def worker():
@@ -367,9 +370,13 @@ class GotoBedApp:
         if self._update_running:
             return
         self._update_running = True
+        self._update_version = release.version
         self._pending_update = None
         self._refresh_tray()
         current_exe = Path(sys.executable)
+        log.info("Downloading v%s", release.version)
+        self._notify('Updating Go-to-Bed', f'Downloading version {release.version}. '
+                     'Go-to-Bed restarts by itself when it is done.')
 
         def worker():
             try:
@@ -385,14 +392,15 @@ class GotoBedApp:
         threading.Thread(target=worker, name='update', daemon=True).start()
 
     def _is_busy(self) -> bool:
-        """True while a reminder is open or a snooze is pending - don't restart then."""
+        """True while a reminder or the settings are open or a snooze is pending - don't restart then."""
         reminder_open = self._reminder_window is not None and self._reminder_window.exists()
-        return reminder_open or self._snooze_job is not None
+        settings_open = self._settings_window is not None and self._settings_window.exists()
+        return reminder_open or settings_open or self._snooze_job is not None
 
     def _finish_update_when_idle(self, release, new_exe: Path, manual: bool) -> None:
         """Swap the exe and restart, but not in the middle of a reminder."""
         if self._is_busy():
-            log.info("Update ready, waiting until no reminder is active")
+            log.info("Update ready, waiting until no reminder or settings window is open")
             self.root.after(self.UPDATE_RETRY_MS, lambda: self._finish_update_when_idle(release, new_exe, manual))
             return
         current_exe = Path(sys.executable)
@@ -403,7 +411,7 @@ class GotoBedApp:
             self._on_update_failed(str(e), manual)
             return
         log.info("Restarting into v%s", release.version)
-        self._quit_app()
+        self._exit_for_restart()
 
     def _on_update_failed(self, error: str, manual: bool) -> None:
         """Report a failed update; the running version stays untouched."""
@@ -431,6 +439,20 @@ class GotoBedApp:
             installer.register(exe)
         except Exception:
             log.exception("Could not register the installation")
+
+    def _exit_for_restart(self) -> None:
+        """Exit at once so the new version can start.
+
+        root.quit() only ends the main loop after an open message box is closed
+        (e.g. "Check for Updates" during the download) - the new instance would
+        give up waiting for the single-instance lock in the meantime.
+        """
+        log.info("Quitting Go-to-Bed for the restart...")
+        self.scheduler.stop()
+        if self.tray_icon:
+            self.tray_icon.stop()
+        logging.shutdown()
+        os._exit(0)
 
     def _quit_app(self) -> None:
         """Quit the application."""
@@ -604,7 +626,9 @@ def main() -> int:
         return uninstall(config, quiet=args.quiet)
 
     restarted = bool(args.updated_from or args.installed_from)
-    lock = instance.acquire_lock(wait_seconds=30 if restarted else 0)
+    # After an update the old instance may still be closing: 3.1.0 only quits once
+    # an open message box is closed, so wait generously for it.
+    lock = instance.acquire_lock(wait_seconds=600 if restarted else 0)
     if args.update_now:
         if lock is None:
             log.error("Go-to-Bed is running - quit it before using --update-now")

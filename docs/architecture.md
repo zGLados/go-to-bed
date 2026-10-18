@@ -72,12 +72,12 @@ check:   GET api.github.com/repos/zGLados/go-to-bed/releases/latest
 | Step | What happens | On failure |
 |---|---|---|
 | `fetch_latest` | GitHub API (`GOTOBED_UPDATE_URL` overrides), 30 s timeout | logged; message only for a manual check |
-| `download` | to `GotoBed.new.exe.part` next to the exe, then checks size and the `sha256:` digest GitHub publishes for the asset, then renames to `GotoBed.new.exe` | partial file deleted |
+| `download` | notification "Updating Go-to-Bed"; to `GotoBed.new.exe.part` next to the exe, then checks size and the `sha256:` digest GitHub publishes for the asset, then renames to `GotoBed.new.exe` | partial file deleted |
 | `verify_exe` | runs `GotoBed.new.exe --report-version FILE` with a temporary data folder; the new exe loads its bundled assets and writes its version, which must equal the release version | new exe deleted |
-| wait until idle | no restart while a reminder window is open or a snooze is pending; re-checks every minute | – |
+| wait until idle | no restart while a reminder or the settings window is open or a snooze is pending; re-checks every minute | – |
 | `install` | renames the running `GotoBed.exe` → `GotoBed.old.exe` (allowed on Windows while running), then `GotoBed.new.exe` → `GotoBed.exe` | rolled back, old exe keeps running |
-| `relaunch` | starts the new exe detached with `--updated-from <old version>` and `PYINSTALLER_RESET_ENVIRONMENT=1` (so it unpacks itself instead of reusing the old process's files); the old instance quits | – |
-| new instance | waits up to 30 s for the single-instance mutex of the old one, deletes `GotoBed.old.exe` (retries while the old process is exiting), shows "Go-to-Bed updated" | leftovers are retried at the next start |
+| `relaunch` | starts the new exe detached with `--updated-from <old version>` and `PYINSTALLER_RESET_ENVIRONMENT=1` (so it unpacks itself instead of reusing the old process's files); the old instance exits at once with `os._exit` (`_exit_for_restart`: `root.quit()` would wait for an open message box) | – |
+| new instance | waits up to 10 min for the single-instance mutex (3.1.0 only quits after an open message box is closed) of the old one, deletes `GotoBed.old.exe` (retries while the old process is exiting), shows "Go-to-Bed updated" | leftovers are retried at the next start |
 
 Only the frozen Windows exe updates itself (`is_supported()`); from source, *Check for Updates* only offers the download page. Thanks to the per-user installation (see below) the exe's folder is always writable. The autostart entry keeps pointing at the same path, so it stays valid. `GotoBed.exe --update-now` runs the same steps without UI (used by the end-to-end test).
 

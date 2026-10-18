@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.1.2] – 2026-10-18
+
+### Fixed
+- **Self-update could get stuck:** if a message box was open when the update finished (e.g. *Check for Updates* during the download), the old version did not quit and the new one gave up after 30 seconds with "Go-to-Bed is already running". The old version now exits at once, and the new one waits up to 10 minutes for it.
+
+### Changed
+- A notification *"Updating Go-to-Bed"* appears when an update starts downloading, and *Check for Updates* during an update names the version and explains that Go-to-Bed restarts by itself.
+- No restart for an update while the settings window is open (unsaved changes would be lost).
+
 ## [3.1.1] – 2026-10-18
 
 ### Added

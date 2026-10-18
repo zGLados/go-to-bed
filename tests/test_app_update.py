@@ -37,7 +37,7 @@ def app(shared_app, tmp_path, monkeypatch):
     monkeypatch.setattr(updater, 'verify_exe', lambda path, version: calls.append('verify'))
     monkeypatch.setattr(updater, 'install', lambda new, current: calls.append('install'))
     monkeypatch.setattr(updater, 'relaunch', lambda exe, args: calls.append(('relaunch', tuple(args))))
-    monkeypatch.setattr(shared_app, '_quit_app', lambda: calls.append('quit'))
+    monkeypatch.setattr(shared_app, '_exit_for_restart', lambda: calls.append('quit'))
     shared_app.calls = calls
     shared_app.config.config['auto_update'] = True
     yield shared_app
@@ -49,6 +49,7 @@ def app(shared_app, tmp_path, monkeypatch):
     shared_app._cancel_snooze()
     shared_app._pending_update = None
     shared_app._update_running = False
+    shared_app._update_version = None
     shared_app.__dict__.pop('UPDATE_RETRY_MS', None)
 
 
@@ -78,6 +79,27 @@ def test_update_waits_while_snoozed(app):
     app._cancel_snooze()
     pump(app, lambda: 'quit' in app.calls)
     assert app.calls[-1] == 'quit'
+
+
+def test_update_waits_while_settings_are_open(app):
+    app.UPDATE_RETRY_MS = 50
+    app._open_settings()
+    app._on_update_checked(RELEASE, None, manual=False)
+    pump(app, lambda: 'verify' in app.calls)
+    pump(app, lambda: False, timeout=0.3)
+    assert 'install' not in app.calls
+    app._settings_window.window.destroy()
+    pump(app, lambda: 'quit' in app.calls)
+    assert app.calls[-1] == 'quit'
+
+
+def test_check_during_update_names_the_version(app, monkeypatch):
+    messages = []
+    monkeypatch.setattr(main.messagebox, 'showinfo', lambda title, text: messages.append(text))
+    app._snooze_job = app.root.after(60_000, lambda: None)  # keep the update from finishing
+    app._on_update_checked(RELEASE, None, manual=False)
+    app._check_for_updates(manual=True)
+    assert messages and '99.0.0' in messages[0]
 
 
 def test_auto_update_off_asks_and_later_keeps_tray_entry(app, monkeypatch):

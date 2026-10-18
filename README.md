@@ -112,10 +112,10 @@ The last 100 events are kept.
 Go-to-Bed keeps itself up to date from the [GitHub releases](../../releases):
 
 - It checks **every time Go-to-Bed starts** (a few seconds after the start, so also at every Windows login with autostart) **and once a day** while it runs – only a small request to the GitHub API.
-- With **Install updates automatically** on (default), a newer version is downloaded in the background, checked and installed; Go-to-Bed then restarts by itself and shows *"Go-to-Bed updated"*.
+- With **Install updates automatically** on (default), a newer version is downloaded in the background (a notification *"Updating Go-to-Bed"* tells you), checked and installed; Go-to-Bed then restarts by itself and shows *"Go-to-Bed updated"*.
 - With the setting off, Go-to-Bed **asks you** whether to install it now. If you choose *No*, the tray menu keeps an **Install Update vX.Y.Z** entry.
 - The **Check for Updates** button (settings window, *Updates* section) and the tray entry of the same name check right away and ask before installing.
-- It never restarts while a reminder is open or a snooze is running – it waits until you're done.
+- It never restarts while a reminder or the settings are open or a snooze is running – it waits until you're done. The download can take a minute or two; just leave Go-to-Bed running.
 
 Safety: the download must match the size and SHA-256 checksum published by GitHub, and the new exe is started once in a test mode and must report the expected version before it replaces the old one. If anything fails, the current version keeps running unchanged and the error is in `gotobed.log`.
 
