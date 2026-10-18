@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [3.1.1] – 2026-10-18
 
 ### Added
 - **Okay, I'm going!** now says *Good night! 🌙 Sleep well.* and closes the window by itself after 3 seconds.
