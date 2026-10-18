@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- **Okay, I'm going!** now says *Good night! 🌙 Sleep well.* and closes the window by itself after 3 seconds.
+
 ### Changed
 - Default bedtime is now **21:40** (was 22:00). Only affects new installations – a bedtime you already saved stays as it is.
 

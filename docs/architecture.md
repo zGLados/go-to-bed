@@ -12,7 +12,7 @@ All code is in `src/` as flat modules (no package); `src/main.py` is the entry p
 | `config.py` | `Config`: loads, validates and atomically saves `config.json` and `stats.json`; `resource_path()` finds bundled assets; `default_data_dir()` |
 | `scheduler.py` | `BedtimeScheduler`: background thread that decides when the pre-warning and the bedtime reminder are due |
 | `settings.py` | Settings window (input validation) |
-| `reminder.py` | Reminder window (pre-warning and bedtime) with the horse picture |
+| `reminder.py` | Reminder window (pre-warning and bedtime) with the horse picture; after *Okay, I'm going!* it shows "Good night!" for `GOOD_NIGHT_MS` and closes itself |
 | `stats.py` | Statistics window |
 | `updater.py` | Self-update from GitHub releases: check, download, verify, swap the exe, restart |
 | `installer.py` | Per-user installation to `%LOCALAPPDATA%\Programs\GotoBed`, autostart, Start menu shortcut, *Apps & features* entry, uninstall |

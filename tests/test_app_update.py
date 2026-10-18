@@ -106,3 +106,19 @@ def test_older_release_is_ignored(app):
     app._on_update_checked(updater.Release('0.0.1', 'u', 1, None), None, manual=False)
     pump(app, lambda: False, timeout=0.2)
     assert app.calls == [] and app._pending_update is None
+
+
+def test_going_to_bed_says_good_night_then_closes(app, monkeypatch):
+    import reminder
+    monkeypatch.setattr(reminder.ReminderWindow, 'GOOD_NIGHT_MS', 200)
+    monkeypatch.setattr(app, '_notify', lambda title, message: None)
+    app.config.config['sound_enabled'] = False
+    dismissed = app.config.get_stats()['dismissed']
+    app._show_bedtime_reminder()
+    window = app._reminder_window
+    window._handle_going()
+    assert app.config.get_stats()['dismissed'] == dismissed + 1
+    assert window.exists()
+    assert window._text_widgets[0].cget('text').startswith('Good night!')
+    pump(app, lambda: not window.exists(), timeout=5)
+    assert not window.exists()

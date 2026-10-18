@@ -16,6 +16,7 @@ class ReminderWindow:
     """Bedtime reminder window. Must be created on the Tk thread."""
 
     IMAGE_SIZE = (300, 200)
+    GOOD_NIGHT_MS = 3000  # how long "Good night!" stays before the window closes
 
     def __init__(self, master: tk.Tk, snooze_minutes: int, on_snooze: Callable, on_dismiss: Callable,
                  is_prewarning: bool = False, minutes_left: int = 0):
@@ -35,6 +36,7 @@ class ReminderWindow:
         self.is_prewarning = is_prewarning
         self.minutes_left = minutes_left
         self._photo = None
+        self._text_widgets = []
         self.window = tk.Toplevel(master)
         self._build()
 
@@ -81,11 +83,12 @@ class ReminderWindow:
         if self._photo:
             ttk.Label(container, image=self._photo).pack(pady=(0, 15))
 
-        ttk.Label(container, text=message, font=(FONT, 16, 'bold'), justify=tk.CENTER).pack(pady=(0, 5))
-        ttk.Label(container, text=submessage, font=(FONT, 10), foreground='gray').pack(pady=(0, 20))
+        self._container = container
+        self._show_text(message, submessage)
 
         button_frame = ttk.Frame(container)
         button_frame.pack(fill=tk.X)
+        self._text_widgets.append(button_frame)
 
         if not self.is_prewarning:
             ttk.Button(
@@ -97,7 +100,7 @@ class ReminderWindow:
         dismiss_btn = ttk.Button(
             button_frame,
             text='OK' if self.is_prewarning else "Okay, I'm going!",
-            command=self._handle_dismiss
+            command=self._handle_dismiss if self.is_prewarning else self._handle_going
         )
         dismiss_btn.pack(side=tk.LEFT, expand=True, fill=tk.X)
 
@@ -107,6 +110,24 @@ class ReminderWindow:
         self.window.lift()
         self.window.focus_force()
         dismiss_btn.focus_set()
+
+    def _show_text(self, message: str, submessage: str):
+        """Show the headline and the grey line below the picture."""
+        for widget in self._text_widgets:
+            widget.destroy()
+        self._text_widgets = [
+            ttk.Label(self._container, text=message, font=(FONT, 16, 'bold'), justify=tk.CENTER),
+            ttk.Label(self._container, text=submessage, font=(FONT, 10), foreground='gray'),
+        ]
+        self._text_widgets[0].pack(pady=(0, 5))
+        self._text_widgets[1].pack(pady=(0, 20))
+
+    def _handle_going(self):
+        """Handle "Okay, I'm going!": count it, say good night, then close."""
+        self.on_dismiss()
+        self.window.protocol('WM_DELETE_WINDOW', self.close)
+        self._show_text('Good night! 🌙', 'Sleep well.')
+        self.window.after(self.GOOD_NIGHT_MS, self.close)
 
     def _handle_snooze(self):
         """Handle snooze button click."""

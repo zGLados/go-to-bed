@@ -88,7 +88,7 @@ The *Updates* section of the settings also shows the installed version and has a
 - At **pre-warning time** a window ("Bedtime in N minutes!") and a Windows notification appear. Just click *OK*.
 - At **bedtime** the reminder window appears on top of all other windows, with a notification and sound. You can choose:
   - **Snooze (N min)** – the reminder comes back after the snooze duration (as often as you like).
-  - **Okay, I'm going!** – done for tonight. Closing the window counts the same.
+  - **Okay, I'm going!** – done for tonight: the window says *Good night!* and closes by itself after 3 seconds. Closing the window counts the same.
 - Each reminder appears **at most once per night**.
 - If the PC was asleep or the app was started a little late, a reminder that is **up to 5 minutes overdue** is still shown; later ones are skipped.
 - **Bedtimes after midnight** work: with bedtime 00:30 on *Tuesday*, the pre-warning appears on Monday evening if it falls before midnight. The active day is the day of the bedtime itself.
