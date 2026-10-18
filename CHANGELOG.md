@@ -1,5 +1,10 @@
 # Changelog
 
+## [Unreleased]
+
+### Changed
+- Default bedtime is now **21:40** (was 22:00). Only affects new installations – a bedtime you already saved stays as it is.
+
 ## [3.1.0] – 2026-10-13
 
 Upgrading from 3.0.0: see [docs/upgrade-from-3.0.md](docs/upgrade-from-3.0.md).

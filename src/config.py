@@ -35,7 +35,7 @@ class Config:
     """Manages application configuration and statistics."""
 
     DEFAULT_CONFIG = {
-        'bedtime': '22:00',
+        'bedtime': '21:40',
         'weekdays': [1, 2, 3, 4, 5],  # Monday to Friday (1=Mon, 7=Sun)
         'enabled': True,
         'snooze_minutes': 10,

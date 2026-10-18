@@ -67,7 +67,7 @@ class SettingsWindow:
         time_frame.pack(fill=tk.X)
         ttk.Label(time_frame, text='Time:').pack(side=tk.LEFT)
 
-        hours, minutes = self.config.get('bedtime', '22:00').split(':')
+        hours, minutes = self.config.get('bedtime', '21:40').split(':')
         self.hour_var = tk.StringVar(value=hours)
         ttk.Spinbox(
             time_frame, from_=0, to=23, width=4, wrap=True,

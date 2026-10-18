@@ -69,7 +69,7 @@ Only one instance runs at a time; starting it again shows a hint instead.
 | Setting | Default | Meaning |
 |---|---|---|
 | Enable bedtime reminders | on | Master switch, same as the tray entry |
-| Bedtime | 22:00 | When the reminder appears |
+| Bedtime | 21:40 | When the reminder appears |
 | Pre-warning | 15 min | Extra reminder this many minutes before bedtime (0 = off, max 120) |
 | Active Days | Mon–Fri | Days on which reminders are shown (at least one) |
 | Snooze duration | 10 min | How long *Snooze* postpones the reminder (1–120) |
