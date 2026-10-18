@@ -130,7 +130,7 @@ This makes the jump from 3.0.0 (no updater) a single action: start the downloade
 - `tools/e2e_update.py OLD_EXE NEW_EXE` – end-to-end test with two real builds: installs the old one in a temp folder, serves the new one as a fake release on localhost, runs `--update-now` and checks that the file was replaced, the new instance started and the old exe was removed.
 - `tools/e2e_install.py EXE` – end-to-end test of self-install and uninstall: starts the exe from a fake Downloads folder, checks the installed copy runs and registered itself (shortcut, *Apps* entry, autostart), then runs `--uninstall --quiet` and checks that the app quit and everything except the data folder is gone. Changes the current user's registry – CI only on Windows.
 - `tools/e2e_migrate.py LEGACY_EXE NEW_EXE` – migration test: a real 3.0.0 build runs from a fake Desktop; starting the new exe from a fake Downloads folder must stop it, install, keep settings, move autostart and replace the old exe with a shortcut. CI builds the 3.0.0 exe from the `v3.0.0` tag (`git worktree`). CI only on Windows.
-- `tools/screenshots.py` – regenerates `docs/screenshots/*.png` with sample data (Windows only, uses `PIL.ImageGrab`).
+- `tools/screenshots.py` – regenerates `docs/screenshots/*.png` (settings, statistics, pre-warning, reminder, good night) with sample data (Windows only, uses `PIL.ImageGrab`).
 - `GotoBed.exe --self-test` (or `python src/main.py --self-test`) creates the tray icon object, opens every window once, checks that the bundled image loads, closes everything and exits with code 0 (1 on error, details in the log).
 
 ## CI / release pipeline

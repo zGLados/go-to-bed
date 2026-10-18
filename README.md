@@ -83,6 +83,7 @@ The *Updates* section of the settings also shows the installed version and has a
 
 <p align="center">
   <img src="docs/screenshots/prewarning.png" alt="Pre-warning window" width="340">
+  <img src="docs/screenshots/good-night.png" alt="Good night message after &quot;Okay, I'm going!&quot;" width="340">
 </p>
 
 - At **pre-warning time** a window ("Bedtime in N minutes!") and a Windows notification appear. Just click *OK*.

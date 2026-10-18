@@ -82,6 +82,10 @@ def main_() -> None:
     capture(app, app._reminder_window.window, out / 'prewarning.png')
     app._show_reminder(snooze_minutes=10, on_snooze=lambda: None, on_dismiss=lambda: None)
     capture(app, app._reminder_window.window, out / 'reminder.png')
+    app._show_reminder(snooze_minutes=10, on_snooze=lambda: None, on_dismiss=lambda: None)
+    app._reminder_window.GOOD_NIGHT_MS = 60_000  # keep it open while capturing
+    app._reminder_window._handle_going()
+    capture(app, app._reminder_window.window, out / 'good-night.png')
     app.root.destroy()
 
 
